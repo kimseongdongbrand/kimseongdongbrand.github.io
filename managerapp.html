@@ -823,44 +823,53 @@
         }
 
         function loadMyBooks() {
-            console.log('📋 예약 로드');
+            console.log('📋 예약 로드 (Google Sheets API)');
             if (!currentDriver) return;
 
             myBookings = [];
-            for (var i = 0; i < localStorage.length; i++) {
-                var key = localStorage.key(i);
-                if (key && key.indexOf('booking:') === 0) {
-                    try {
-                        var booking = JSON.parse(localStorage.getItem(key));
-                        if (booking.manager === currentDriver) {
-                            myBookings.push(booking);
-                        }
-                    } catch (e) {}
-                }
-            }
-
-            myBookings.sort(function(a, b) { return (a.serviceDate || '9999-12-31').localeCompare(b.serviceDate || '9999-12-31'); });
-
-            console.log('  내 예약:', myBookings.length + '건');
             
-            // 날짜별로 그룹화
-            scheduleByDate = {};
-            for (var i = 0; i < myBookings.length; i++) {
-                var b = myBookings[i];
-                var date = b.serviceDate || '미지정';
-                if (date !== '미지정') {
-                    if (!scheduleByDate[date]) {
-                        scheduleByDate[date] = [];
-                    }
-                    scheduleByDate[date].push(b);
-                }
-            }
+            fetch(GOOGLE_SCRIPT_URL + '?action=getBookings')
+                .then(function(response) { return response.json(); })
+                .then(function(result) {
+                    console.log('📥 API 응답:', result);
+                    if (result.success && result.bookings) {
+                        // 현재 매니저의 예약만 필터링
+                        for (var i = 0; i < result.bookings.length; i++) {
+                            var booking = result.bookings[i];
+                            if (booking.manager === currentDriver) {
+                                myBookings.push(booking);
+                            }
+                        }
+                        
+                        myBookings.sort(function(a, b) { return (a.serviceDate || '9999-12-31').localeCompare(b.serviceDate || '9999-12-31'); });
 
-            renderAssignBanner();
-            renderBooks();
-            updateStats();
-            updateMainMonthDisplay();
-            updateFilterButtons();
+                        console.log('✅ 내 예약:', myBookings.length + '건');
+                        
+                        // 날짜별로 그룹화
+                        scheduleByDate = {};
+                        for (var i = 0; i < myBookings.length; i++) {
+                            var b = myBookings[i];
+                            var date = b.serviceDate || '미지정';
+                            if (date !== '미지정') {
+                                if (!scheduleByDate[date]) {
+                                    scheduleByDate[date] = [];
+                                }
+                                scheduleByDate[date].push(b);
+                            }
+                        }
+
+                        renderAssignBanner();
+                        renderBooks();
+                        updateStats();
+                        updateMainMonthDisplay();
+                        updateFilterButtons();
+                    } else {
+                        console.log('❌ 예약 로드 실패:', result.message);
+                    }
+                })
+                .catch(function(error) {
+                    console.log('❌ API 호출 오류:', error);
+                });
         }
 
         function renderAssignBanner() {
