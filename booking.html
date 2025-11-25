@@ -529,20 +529,15 @@
                 const isSelected = selectedDate && selectedDate.getTime() === currentDateObj.getTime();
                 
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const availableSlots = getAvailableSlots(dateStr);
-                const isFull = availableSlots === 0;
                 
                 let classes = ['calendar-day'];
                 if (isToday) classes.push('today');
                 if (isPast) classes.push('disabled');
                 if (isSelected) classes.push('selected');
-                if (isFull && !isPast) classes.push('full');
                 
                 let slotsText = '';
-                if (!isPast && !isFull) {
-                    slotsText = `<div class="slots-indicator">${availableSlots}자리</div>`;
-                } else if (isFull) {
-                    slotsText = `<div class="slots-indicator">마감</div>`;
+                if (!isPast) {
+                    slotsText = `<div class="slots-indicator">예약가능</div>`;
                 }
                 
                 html += `<div class="${classes.join(' ')}" data-date="${dateStr}" onclick="selectDate('${dateStr}')">${day}${slotsText}</div>`;
@@ -552,8 +547,8 @@
         }
 
         function getAvailableSlots(dateStr) {
-            const schedules = managerSchedules.filter(s => s.date === dateStr && s.status === '대기중');
-            return schedules.length;
+            // 매니저 스케줄과 무관하게 항상 예약 가능
+            return 10; // 충분한 자리 표시
         }
 
         function selectDate(dateStr) {
@@ -563,12 +558,7 @@
             
             if (dateObj < today) return;
             
-            const availableSlots = getAvailableSlots(dateStr);
-            if (availableSlots === 0) {
-                alert('해당 날짜는 예약이 마감되었습니다.');
-                return;
-            }
-            
+            // 매니저 스케줄과 무관하게 모든 날짜 선택 가능
             selectedDate = dateObj;
             const displayDate = `${dateObj.getFullYear()}년 ${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일`;
             
