@@ -3,2285 +3,775 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>(주)홈케어 깨끗한집 - 관리자</title>
+    <title>(주)홈케어 깨끗한집 - 배관 스케일링 예약</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, sans-serif; background: #f5f7fa; padding: 20px; }
-        .header { background: linear-gradient(135deg, #00AEEF 0%, #0088CC 100%); color: white; padding: 30px; border-radius: 15px; margin-bottom: 20px; text-align: center; }
-        .header h1 { font-size: 28px; margin-bottom: 10px; }
-        .action-btn { padding: 12px 24px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin: 5px; }
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .stat-number { font-size: 36px; font-weight: 800; }
-        .stat-label { font-size: 13px; color: #666; font-weight: 600; margin-top: 5px; }
-        .section { background: white; padding: 25px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-        .section-header h2 { color: #2c3e50; font-size: 20px; }
-        .manager-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
-        .manager-card { background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 4px solid #00AEEF; cursor: pointer; position: relative; transition: all 0.3s; }
-        .manager-card:hover { background: #e8f4f8; transform: scale(1.02); }
-        .manager-name { font-size: 20px; font-weight: 800; color: #2c3e50; margin-bottom: 8px; padding-right: 40px; }
-        .manager-remove-btn { position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; border: none; background: #e74c3c; color: white; border-radius: 50%; font-size: 18px; cursor: pointer; z-index: 999; line-height: 26px; font-weight: bold; }
-        .manager-remove-btn:hover { background: #c0392b; transform: scale(1.1); }
-        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin: 5px; font-size: 13px; color: white; }
-        .btn-primary { background: #00AEEF; }
-        .btn-success { background: #27ae60; }
-        .btn-danger { background: #e74c3c; }
-        .btn-warning { background: #f39c12; }
-        .btn-info { background: #3498db; }
-        .filter-btn { padding: 10px 20px; border: 2px solid #e0e0e0; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; margin: 5px; }
-        .filter-btn.active { background: #00AEEF; color: white; border-color: #00AEEF; }
-        .booking-card { background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 12px; border-left: 5px solid #e0e0e0; }
-        .customer-name { font-size: 22px; font-weight: 800; color: #2c3e50; margin-bottom: 12px; }
-        .info-item { margin: 8px 0; font-size: 14px; }
-        .booking-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
-        .booking-actions select { padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; }
-        .status-badge { display: inline-block; padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 700; margin: 8px 8px 8px 0; }
-        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-        .modal.show { display: flex; }
-        .modal-content { background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; }
-        .form-group input { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; }
-        .modal-buttons { display: flex; gap: 10px; margin-top: 25px; }
-        .modal-buttons button { flex: 1; padding: 14px; }
-        
-        .confirm-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #00AEEF 0%, #0088CC 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #00AEEF 0%, #0088CC 100%); color: white; padding: 40px 30px 30px; text-align: center; }
+        .form-container { padding: 40px 30px; }
+        .form-group { margin-bottom: 25px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 14px; }
+        input[type="text"], input[type="tel"], textarea { width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 15px; font-family: inherit; }
+        input:focus, textarea:focus { outline: none; border-color: #00AEEF; box-shadow: 0 0 0 3px rgba(0, 174, 239, 0.1); }
+        .date-selector { background: #f0faff; border: 3px solid #00AEEF; border-radius: 12px; padding: 20px; cursor: pointer; text-align: center; transition: all 0.3s; }
+        .date-selector:hover { background: #e0f5ff; transform: scale(1.02); }
+        .date-selector.disabled { background: #f5f5f5; border-color: #ccc; cursor: not-allowed; opacity: 0.6; }
+        .date-selector-text { font-size: 22px; font-weight: 700; color: #00AEEF; }
+        .date-selector-placeholder { color: #999; }
+        .service-options { display: flex; flex-direction: column; gap: 15px; }
+        .service-card { border: 2px solid #e0e0e0; border-radius: 12px; padding: 20px; cursor: pointer; position: relative; transition: all 0.3s; }
+        .service-card:hover { border-color: #00AEEF; transform: translateY(-2px); }
+        .service-card.selected { border-color: #00AEEF; background: #f0faff; }
+        .service-card.disabled { background: #f5f5f5; border-color: #ddd; cursor: not-allowed; opacity: 0.5; }
+        .service-content { display: flex; justify-content: space-between; align-items: center; padding-left: 40px; }
+        .service-name { font-size: 16px; font-weight: 600; }
+        .checkmark { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); height: 24px; width: 24px; border: 2px solid #ddd; border-radius: 50%; }
+        .service-card.selected .checkmark { background: #00AEEF; border-color: #00AEEF; }
+        .service-card.selected .checkmark:after { content: ""; position: absolute; display: block; left: 7px; top: 3px; width: 6px; height: 12px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+        .submit-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #00AEEF 0%, #0088CC 100%); color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: all 0.3s; }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 174, 239, 0.4); }
+        .required { color: #e74c3c; }
+        .success-message { display: none; background: #d4edda; color: #155724; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #c3e6cb; text-align: center; font-weight: 700; font-size: 18px; }
+        .success-message.show { display: block; animation: slideDown 0.3s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .price-summary { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); color: white; padding: 20px; border-radius: 12px; margin-top: 20px; margin-bottom: 20px; }
+        .price-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 16px; }
+        .price-row:last-child { margin-bottom: 0; border-top: 2px solid rgba(255,255,255,0.3); padding-top: 10px; font-size: 20px; font-weight: 900; }
+        .price-label { opacity: 0.9; }
+        .price-value { font-weight: 700; }
+        .company-info { background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #e0e0e0; }
+        .company-info-title { font-size: 14px; font-weight: 700; color: #333; margin-bottom: 12px; }
+        .company-links { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+        .company-link { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: white; border: 2px solid #e0e0e0; border-radius: 8px; text-decoration: none; color: #333; font-size: 13px; font-weight: 600; transition: all 0.3s; }
+        .company-link:hover { border-color: #00AEEF; background: #f0faff; }
+        .process-info { font-size: 12px; color: #666; line-height: 1.6; }
+        .process-step { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .step-num { background: #00AEEF; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+        .calendar-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .calendar-modal.show { display: flex; }
+        .calendar-container { background: white; border-radius: 20px; padding: 30px; max-width: 450px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .calendar-nav-btn { width: 50px; height: 50px; border: none; background: #00AEEF; color: white; font-size: 24px; border-radius: 10px; cursor: pointer; transition: all 0.3s; }
+        .calendar-nav-btn:hover { background: #0088CC; }
+        .calendar-title { font-size: 24px; font-weight: 700; color: #333; }
+        .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 10px; }
+        .calendar-weekday { text-align: center; font-weight: 600; color: #666; padding: 10px 0; font-size: 14px; }
+        .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+        .calendar-day { aspect-ratio: 1; border: 2px solid #e0e0e0; background: white; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 18px; font-weight: 600; cursor: pointer; transition: all 0.3s; position: relative; }
+        .calendar-day:hover:not(.disabled):not(.empty):not(.full) { background: #00AEEF; color: white; border-color: #00AEEF; }
+        .calendar-day.today { border-color: #f39c12; background: #fff3cd; }
+        .calendar-day.selected { background: #00AEEF; color: white; border-color: #00AEEF; }
+        .calendar-day.disabled { color: #ccc; cursor: not-allowed; background: #f5f5f5; }
+        .calendar-day.full { color: #e74c3c; cursor: not-allowed; background: #ffeaea; border-color: #e74c3c; }
+        .calendar-day.empty { border: none; cursor: default; }
+        .calendar-day .slots-indicator { font-size: 9px; color: #27ae60; margin-top: 2px; }
+        .calendar-day.full .slots-indicator { color: #e74c3c; }
+        .calendar-close { margin-top: 20px; width: 100%; padding: 15px; background: #95a5a6; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .calendar-close:hover { background: #7f8c8d; }
+        .confirm-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
         .confirm-modal.show { display: flex; }
-        .confirm-content { background: white; padding: 30px; border-radius: 15px; max-width: 400px; width: 90%; text-align: center; }
-        .confirm-content h3 { font-size: 20px; margin-bottom: 20px; color: #2c3e50; }
-        .confirm-buttons { display: flex; gap: 10px; margin-top: 25px; }
-        .confirm-buttons button { flex: 1; padding: 14px; border: none; border-radius: 10px; font-weight: 700; font-size: 16px; cursor: pointer; }
+        .confirm-content { background: white; border-radius: 20px; padding: 35px; max-width: 500px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
+        .confirm-title { font-size: 26px; font-weight: 900; color: #333; margin-bottom: 25px; text-align: center; }
+        .confirm-info { background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 25px; }
+        .confirm-row { display: flex; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #e0e0e0; }
+        .confirm-row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .confirm-label { font-weight: 700; color: #555; min-width: 100px; font-size: 15px; }
+        .confirm-value { color: #000; font-weight: 600; font-size: 15px; flex: 1; }
+        .confirm-buttons { display: flex; gap: 12px; }
+        .confirm-buttons button { flex: 1; padding: 16px; border: none; border-radius: 12px; font-size: 18px; font-weight: 900; cursor: pointer; transition: all 0.3s; }
+        .confirm-buttons .btn-no { background: #95a5a6; color: white; }
+        .confirm-buttons .btn-no:hover { background: #7f8c8d; }
+        .confirm-buttons .btn-yes { background: linear-gradient(135deg, #00AEEF 0%, #0088CC 100%); color: white; }
+        .confirm-buttons .btn-yes:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 174, 239, 0.4); }
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; }
+        .loading-overlay.show { display: flex; }
+        .loading-spinner { width: 50px; height: 50px; border: 5px solid #e0e0e0; border-top-color: #00AEEF; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { margin-top: 20px; font-size: 18px; font-weight: 600; color: #333; }
         
-        .calendar-modal-large { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1500; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
-        .calendar-modal-large.show { display: flex; }
-        .calendar-big-container { background: white; border-radius: 20px; padding: 30px; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; }
-        .calendar-big-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .calendar-big-nav-btn { padding: 10px 20px; border: none; background: #00AEEF; color: white; font-size: 18px; border-radius: 10px; cursor: pointer; font-weight: 700; }
-        .calendar-big-title { font-size: 28px; font-weight: 700; color: #2c3e50; }
-        .calendar-big-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 15px; }
-        .calendar-big-weekday { text-align: center; font-weight: 700; color: #666; padding: 15px 0; font-size: 16px; background: #f8f9fa; border-radius: 8px; }
-        .calendar-big-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
-        .calendar-big-day { min-height: 100px; border: 2px solid #e0e0e0; background: white; border-radius: 12px; padding: 10px; cursor: pointer; transition: all 0.3s; position: relative; }
-        .calendar-big-day:hover { border-color: #00AEEF; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,174,239,0.2); }
-        .calendar-big-day-number { font-size: 20px; font-weight: 700; color: #2c3e50; margin-bottom: 8px; }
-        .calendar-big-day.has-bookings { background: #e8f4f8; border-color: #00AEEF; }
-        .calendar-booking-count { background: #00AEEF; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 700; display: inline-block; }
-        .calendar-big-day.empty { border: none; cursor: default; background: transparent; }
-        .calendar-close-btn { margin-top: 20px; width: 100%; padding: 15px; background: #95a5a6; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; }
-        
-        .finance-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; table-layout: auto; }
-        .finance-table th, .finance-table td { padding: 12px 8px; text-align: left; border-bottom: 1px solid #e0e0e0; white-space: nowrap; }
-        .finance-table th { background: #f8f9fa; font-weight: 700; color: #2c3e50; font-size: 12px; }
-        .finance-table th:nth-child(1) { min-width: 100px; } /* 날짜 */
-        .finance-table th:nth-child(2) { min-width: 200px; } /* 이름/전화/주소 */
-        .finance-table th:nth-child(3) { min-width: 60px; } /* 평형 */
-        .finance-table th:nth-child(4) { min-width: 150px; } /* 서비스 */
-        .finance-table th:nth-child(5) { min-width: 80px; } /* 관리자 */
-        .finance-table th:nth-child(6) { min-width: 80px; } /* 상태 */
-        .finance-table th:nth-child(7) { min-width: 100px; } /* 매출 */
-        .finance-table th:nth-child(8) { min-width: 100px; } /* 매니저 비용 */
-        .finance-table th:nth-child(9) { min-width: 100px; } /* 순이익 */
-        .finance-table td:nth-child(2) { white-space: normal; } /* 이름/전화/주소는 줄바꿈 허용 */
-        .finance-table td:nth-child(4) { white-space: normal; } /* 서비스명도 줄바꿈 허용 */
-        .finance-table tr:hover { background: #f8f9fa; }
-        .profit-positive { color: #27ae60; font-weight: 700; }
-        .profit-negative { color: #e74c3c; font-weight: 700; }
-        
-        .day-bookings-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 2500; align-items: center; justify-content: center; padding: 20px; }
-        .day-bookings-modal.show { display: flex; }
-        .day-bookings-content { background: white; border-radius: 15px; padding: 30px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
-        
-        /* 편집 가능한 셀 스타일 */
-        .editable { 
-            cursor: pointer; 
-            padding: 4px 8px; 
-            border-radius: 4px; 
-            transition: all 0.2s;
-            border: 1px dashed transparent;
-        }
-        .editable:hover { 
-            background: #fff3cd; 
-            border-color: #f39c12;
-            transform: scale(1.05);
-        }
+        /* 주소 입력란 그리드 */
+        .address-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .address-full { grid-column: 1 / -1; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🏠 (주)홈케어 깨끗한집 - 관리자</h1>
-        <p>컨트롤타워</p>
-        <div>
-            <button class="action-btn" onclick="location.reload()">🔄 새로고침</button>
-            <button class="action-btn" onclick="exportExcel()">📊 엑셀</button>
-            <button class="action-btn" onclick="showBigCalendar()">📅 캘린더</button>
+    <div class="container">
+        <div class="header">
+            <h1 style="font-size: 32px; font-weight: 900;">배관 스케일링 서비스 예약</h1>
         </div>
-    </div>
 
-    <div class="stats">
-        <div class="stat-card"><div class="stat-number" id="totalCount">0</div><div class="stat-label">전체 예약</div></div>
-        <div class="stat-card"><div class="stat-number" id="receivedCount">0</div><div class="stat-label">신규예약</div></div>
-        <div class="stat-card"><div class="stat-number" id="confirmedCount">0</div><div class="stat-label">예약확정</div></div>
-        <div class="stat-card"><div class="stat-number" id="startedCount">0</div><div class="stat-label">작업시작</div></div>
-        <div class="stat-card"><div class="stat-number" id="completedCount">0</div><div class="stat-label">작업완료</div></div>
-        <div class="stat-card"><div class="stat-number" id="paidCount">0</div><div class="stat-label">입금완료</div></div>
-    </div>
+        <div class="form-container">
+            <div class="company-info">
+                <div class="company-info-title">📌 (주)홈케어 깨끗한집</div>
+                <div class="company-links">
+                    <a href="http://www.xn--9l0bs0bb58byrk.com/sub0101.php" target="_blank" class="company-link">🌐 회사 홈페이지</a>
+                    <a href="https://www.youtube.com/@%EA%B9%A8%EC%A7%91%EB%8B%A5%ED%84%B0" target="_blank" class="company-link">📺 유튜브 채널</a>
+                </div>
+                <div class="process-info">
+                    <div style="font-weight: 700; margin-bottom: 10px; font-size: 14px; color: #00AEEF;">🔧 난방/수도 배관 스케일링 방식</div>
+                    <div style="font-size: 11px; color: #666; margin-bottom: 10px; background: #e8f4f8; padding: 8px; border-radius: 6px;">
+                        <strong>특허 번호 제10-0885390호</strong> 획득<br>독자적인 친환경 장치 사용
+                    </div>
+                    <div class="process-step"><span class="step-num">1</span> <strong>이온화수기 사용</strong> - 자체 제작 이온화수기로 물(H₂O) 분자를 분해하여 강 알칼리 수소수와 오존수 생성</div>
+                    <div class="process-step"><span class="step-num">2</span> <strong>화학적 용해 (수소수)</strong> - 수소수가 배관 내 녹과 슬러지 분자를 만나 약 150배 팽창시켜 쉽게 박리</div>
+                    <div class="process-step"><span class="step-num">3</span> <strong>생물학적 살균 (오존수)</strong> - 오존수로 배관 표면 멸균, 항균·살균 효과로 배관 내부를 위생적으로 유지</div>
+                    <div class="process-step"><span class="step-num">4</span> <strong>저압 세척</strong> - 기존 수압(6~10bar)보다 낮은 4bar의 안전한 압력으로 배관 손상 없이 오염물 제거</div>
+                </div>
+            </div>
 
-    <div class="section">
-        <div class="section-header">
-            <h2>👥 관리자 관리</h2>
-            <div>
-                <button class="btn btn-primary" onclick="toggleMgr()">펼치기/접기</button>
-                <button class="btn btn-success" onclick="showAddModal()">+ 관리자 추가</button>
-            </div>
-        </div>
-        <div class="manager-list" id="managerList" style="display: none;"></div>
-    </div>
+            <div class="success-message" id="successMessage">✅ 예약 접수되었습니다!</div>
 
-    <div class="section">
-        <div class="section-header">
-            <h2>🆕 신규예약</h2>
-            <button class="btn btn-primary" onclick="toggleNew()">펼치기/접기</button>
-        </div>
-        <div id="newBookingList" style="display: none;"></div>
-    </div>
+            <div class="form-group">
+                <label>이름 <span class="required">*</span></label>
+                <input type="text" id="name" placeholder="홍길동">
+            </div>
 
-    <div class="section">
-        <div class="section-header">
-            <h2>📋 예약 관리</h2>
-            <button class="btn btn-primary" onclick="toggleBook()">펼치기/접기</button>
-        </div>
-        <div id="bookingSection">
-            <div style="margin-bottom: 20px;">
-                <button class="filter-btn active" onclick="setFilter('all')">전체</button>
-                <button class="filter-btn" onclick="setFilter('confirmed')">예약확정</button>
-                <button class="filter-btn" onclick="setFilter('started')">작업시작</button>
-                <button class="filter-btn" onclick="setFilter('completed')">작업완료</button>
-                <button class="filter-btn" onclick="setFilter('paid')">입금완료</button>
+            <div class="form-group">
+                <label>전화번호 <span class="required">*</span></label>
+                <input type="tel" id="phone" placeholder="010-1234-5678" maxlength="13">
             </div>
-            <div id="bookingList"></div>
-        </div>
-    </div>
 
-    <div class="section">
-        <div class="section-header">
-            <h2>💰 재정관리</h2>
-            <button class="btn btn-primary" onclick="toggleFinance()">펼치기/접기</button>
-        </div>
-        <div id="financeSection" style="display: block;">
-            <div style="overflow-x: auto;">
-                <table class="finance-table" id="financeTable">
-                    <thead>
-                        <tr>
-                            <th>번호</th>
-                            <th>접수날짜</th>
-                            <th>서비스날짜</th>
-                            <th>이름<br><small>전화/주소</small></th>
-                            <th>평형</th>
-                            <th>서비스</th>
-                            <th>매니저</th>
-                            <th>작업현황</th>
-                            <th>총매출<br><small>(원)</small></th>
-                            <th>매니저페이<br><small>(원)</small></th>
-                            <th>순이익<br><small>(원)</small></th>
-                            <th>결제방법</th>
-                            <th>입금일</th>
-                            <th>미수금<br><small>(원)</small></th>
-                            <th>구분</th>
-                            <th>수정</th>
-                        </tr>
-                    </thead>
-                    <tbody id="financeBody"></tbody>
-                </table>
+            <div class="form-group">
+                <label>주소 기입란 (지역/아파트이름/동/호수) <span class="required">*</span></label>
+                <div class="address-grid">
+                    <input type="text" id="region" placeholder="지역 (예: 송파구)">
+                    <input type="text" id="aptName" placeholder="아파트 이름 (예: 충남아파트)">
+                    <input type="text" id="dong" placeholder="동 (예: 621동)">
+                    <input type="text" id="ho" placeholder="호수 (예: 1302호)">
+                </div>
             </div>
-        </div>
-    </div>
 
-    <!-- 가격 설정 섹션 -->
-    <div class="section">
-        <div class="section-header">
-            <h2>💰 아파트 단지별 가격 설정</h2>
-            <button class="btn btn-success" onclick="showAddApartmentModal()">+ 새 아파트 단지 추가</button>
-        </div>
-        <div id="apartmentPriceList"></div>
-    </div>
+            <div class="form-group">
+                <label style="font-size: 16px; font-weight: 700; margin-bottom: 12px;">서비스 희망 날짜 <span class="required">*</span></label>
+                <div class="date-selector" id="dateSelector">
+                    <div class="date-selector-text date-selector-placeholder" id="dateDisplay">📅 날짜를 선택하세요</div>
+                </div>
+            </div>
 
-    <!-- 아파트 추가/수정 모달 -->
-    <div class="modal" id="apartmentModal">
-        <div class="modal-content">
-            <h3 id="apartmentModalTitle">🏘️ 아파트 단지 추가</h3>
-            <div class="form-group">
-                <label>아파트 단지명 *</label>
-                <input type="text" id="apartmentName" placeholder="예: 송파 헬리오시티">
+            <div class="form-group" id="timeOptionsContainer">
+                <label style="font-size: 16px; font-weight: 700; margin-bottom: 12px;">가능한 시간대 선택 (여러 개 선택 가능) <span class="required">*</span></label>
+                <div class="service-options" id="timeOptions">
+                    <div class="service-card" data-value="오전 9시 - 12시">
+                        <div class="service-content"><span class="service-name">오전 9시 - 12시</span></div>
+                        <span class="checkmark"></span>
+                    </div>
+                    <div class="service-card" data-value="오후 1시 - 4시">
+                        <div class="service-content"><span class="service-name">오후 1시 - 4시</span></div>
+                        <span class="checkmark"></span>
+                    </div>
+                    <div class="service-card" data-value="오후 4시 - 7시">
+                        <div class="service-content"><span class="service-name">오후 4시 - 7시</span></div>
+                        <span class="checkmark"></span>
+                    </div>
+                    <div class="service-card" data-value="종일 가능 (9시-7시)">
+                        <div class="service-content"><span class="service-name">⭐ 종일 가능 (9시-7시)</span></div>
+                        <span class="checkmark"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label>30평형 - 난방 (원)</label>
-                <input type="number" id="price30heating" placeholder="120000">
-            </div>
-            <div class="form-group">
-                <label>30평형 - 수도 (원)</label>
-                <input type="number" id="price30water" placeholder="120000">
-            </div>
-            <div class="form-group">
-                <label>30평형 - 난방+수도 (원)</label>
-                <input type="number" id="price30both" placeholder="150000">
-            </div>
-            <div class="form-group">
-                <label>40평형 - 난방 (원)</label>
-                <input type="number" id="price40heating" placeholder="140000">
-            </div>
-            <div class="form-group">
-                <label>40평형 - 수도 (원)</label>
-                <input type="number" id="price40water" placeholder="140000">
-            </div>
-            <div class="form-group">
-                <label>40평형 - 난방+수도 (원)</label>
-                <input type="number" id="price40both" placeholder="180000">
-            </div>
-            <div class="form-group">
-                <label>50평형 - 난방 (원)</label>
-                <input type="number" id="price50heating" placeholder="160000">
-            </div>
-            <div class="form-group">
-                <label>50평형 - 수도 (원)</label>
-                <input type="number" id="price50water" placeholder="160000">
-            </div>
-            <div class="form-group">
-                <label>50평형 - 난방+수도 (원)</label>
-                <input type="number" id="price50both" placeholder="200000">
-            </div>
-            <div class="form-group">
-                <label>60평형 - 난방 (원)</label>
-                <input type="number" id="price60heating" placeholder="180000">
-            </div>
-            <div class="form-group">
-                <label>60평형 - 수도 (원)</label>
-                <input type="number" id="price60water" placeholder="180000">
-            </div>
-            <div class="form-group">
-                <label>60평형 - 난방+수도 (원)</label>
-                <input type="number" id="price60both" placeholder="220000">
-            </div>
-            <div class="modal-buttons">
-                <button class="btn btn-danger" onclick="hideApartmentModal()">취소</button>
-                <button class="btn btn-primary" id="saveApartmentBtn" onclick="saveApartment()">저장</button>
-            </div>
-        </div>
-    </div>
 
-    <div class="modal" id="addManagerModal">
-        <div class="modal-content">
-            <h3>👤 관리자 회원가입</h3>
-            <div class="form-group"><label>이름 *</label><input type="text" id="managerName"></div>
-            <div class="form-group"><label>나이 *</label><input type="number" id="managerAge"></div>
-            <div class="form-group"><label>전화 *</label><input type="tel" id="managerPhone"></div>
-            <div class="form-group"><label>주소 *</label><input type="text" id="managerAddress"></div>
-            <div class="form-group"><label>아이디 *</label><input type="text" id="managerId"></div>
-            <div class="form-group"><label>비밀번호 *</label><input type="password" id="managerPassword"></div>
-            <div class="modal-buttons">
-                <button class="btn btn-danger" onclick="hideAddModal()">취소</button>
-                <button class="btn btn-primary" onclick="addMgr()">회원가입</button>
+            <div class="form-group">
+                <label>아파트 평수 <span class="required">*</span></label>
+                <div class="service-options" id="sizeOptions">
+                    <div class="service-card" data-value="30평형(20평형 포함)">
+                        <div class="service-content"><span class="service-name">30평형 (20평형 포함)</span></div>
+                        <span class="checkmark"></span>
+                    </div>
+                    <div class="service-card" data-value="40평형">
+                        <div class="service-content"><span class="service-name">40평형</span></div>
+                        <span class="checkmark"></span>
+                    </div>
+                    <div class="service-card" data-value="50평형">
+                        <div class="service-content"><span class="service-name">50평형</span></div>
+                        <span class="checkmark"></span>
+                    </div>
+                    <div class="service-card" data-value="60평형">
+                        <div class="service-content"><span class="service-name">60평형</span></div>
+                        <span class="checkmark"></span>
+                    </div>
+                </div>
             </div>
+
+            <div class="form-group">
+                <label>서비스 종류 <span class="required">*</span></label>
+                <div class="service-options" id="serviceOptions">
+                    <p style="color: #888; font-size: 14px; margin-bottom: 10px;">먼저 아파트 평수를 선택해주세요</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="font-size: 16px; font-weight: 700; margin-bottom: 12px;">구분 <span class="required">*</span></label>
+                <div class="service-options" id="categoryOptions">
+                    <div class="service-card" data-value="개인">
+                        <div class="service-content">
+                            <span class="service-name">👤 개인</span>
+                        </div>
+                        <span class="checkmark"></span>
+                    </div>
+                    <div class="service-card" data-value="법인">
+                        <div class="service-content">
+                            <span class="service-name">🏢 법인 (세금계산서)</span>
+                        </div>
+                        <span class="checkmark"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="font-size: 16px; font-weight: 700; margin-bottom: 12px;">결제 방법 <span class="required">*</span></label>
+                <div class="service-options" id="paymentOptions">
+                    <div class="service-card" data-value="현금영수증" data-vat="true">
+                        <div class="service-content">
+                            <span class="service-name">💵 현금영수증</span>
+                            <span style="font-size: 12px; color: #e74c3c; font-weight: 600;">+10% 부가세</span>
+                        </div>
+                        <span class="checkmark"></span>
+                    </div>
+                    <div class="service-card" data-value="카드" data-vat="true">
+                        <div class="service-content">
+                            <span class="service-name">💳 카드</span>
+                            <span style="font-size: 12px; color: #e74c3c; font-weight: 600;">+10% 부가세</span>
+                        </div>
+                        <span class="checkmark"></span>
+                    </div>
+                    <div class="service-card" data-value="계좌이체" data-vat="false">
+                        <div class="service-content">
+                            <span class="service-name">🏦 계좌이체</span>
+                            <span style="font-size: 12px; color: #27ae60; font-weight: 600;">부가세 없음</span>
+                        </div>
+                        <span class="checkmark"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="price-summary" id="priceSummary" style="display: none;">
+                <div class="price-row">
+                    <span class="price-label">서비스 금액</span>
+                    <span class="price-value" id="basePrice">0원</span>
+                </div>
+                <div class="price-row" id="vatRow" style="display: none;">
+                    <span class="price-label">부가세 (10%)</span>
+                    <span class="price-value" id="vatPrice">0원</span>
+                </div>
+                <div class="price-row">
+                    <span class="price-label">총 결제예정금액</span>
+                    <span class="price-value" id="totalPrice">0원</span>
+                </div>
+            </div>
+
+            <button class="submit-btn" id="submitBtn" type="button">예약하기</button>
         </div>
     </div>
 
     <div class="confirm-modal" id="confirmModal">
         <div class="confirm-content">
-            <h3 id="confirmMessage"></h3>
+            <div class="confirm-title">📋 입력하신 정보가 맞나요?</div>
+            <div class="confirm-info" id="confirmInfo"></div>
             <div class="confirm-buttons">
-                <button onclick="confirmCancel()" style="background: #95a5a6; color: white;">취소</button>
-                <button onclick="confirmOk()" style="background: #e74c3c; color: white;">확인</button>
+                <button class="btn-no" onclick="closeConfirmModal()">아니오</button>
+                <button class="btn-yes" onclick="confirmBooking()">예, 접수합니다</button>
             </div>
         </div>
     </div>
 
-    <div class="calendar-modal-large" id="bigCalendarModal">
-        <div class="calendar-big-container">
-            <div class="calendar-big-header">
-                <button class="calendar-big-nav-btn" onclick="prevBigMonth()">◀ 이전</button>
-                <div class="calendar-big-title" id="bigCalendarTitle">2025년 1월</div>
-                <button class="calendar-big-nav-btn" onclick="nextBigMonth()">다음 ▶</button>
+    <div class="calendar-modal" id="calendarModal">
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <button class="calendar-nav-btn" id="prevMonth">◀</button>
+                <div class="calendar-title" id="calendarTitle">2024년 1월</div>
+                <button class="calendar-nav-btn" id="nextMonth">▶</button>
             </div>
-            <div class="calendar-big-weekdays">
-                <div class="calendar-big-weekday">일</div>
-                <div class="calendar-big-weekday">월</div>
-                <div class="calendar-big-weekday">화</div>
-                <div class="calendar-big-weekday">수</div>
-                <div class="calendar-big-weekday">목</div>
-                <div class="calendar-big-weekday">금</div>
-                <div class="calendar-big-weekday">토</div>
+            <div class="calendar-weekdays">
+                <div class="calendar-weekday" style="color: #e74c3c;">일</div>
+                <div class="calendar-weekday">월</div>
+                <div class="calendar-weekday">화</div>
+                <div class="calendar-weekday">수</div>
+                <div class="calendar-weekday">목</div>
+                <div class="calendar-weekday">금</div>
+                <div class="calendar-weekday" style="color: #3498db;">토</div>
             </div>
-            <div class="calendar-big-days" id="bigCalendarDays"></div>
-            <button class="calendar-close-btn" onclick="hideBigCalendar()">닫기</button>
+            <div class="calendar-days" id="calendarDays"></div>
+            <button class="calendar-close" id="closeCalendar">닫기</button>
         </div>
     </div>
 
-    <div class="calendar-modal-large" id="managerCalendarModal">
-        <div class="calendar-big-container">
-            <h2 style="margin-bottom: 20px; color: #2c3e50;" id="managerCalendarName"></h2>
-            <div class="calendar-big-header">
-                <button class="calendar-big-nav-btn" onclick="prevManagerMonth()">◀ 이전</button>
-                <div class="calendar-big-title" id="managerCalendarTitle">2025년 1월</div>
-                <button class="calendar-big-nav-btn" onclick="nextManagerMonth()">다음 ▶</button>
-            </div>
-            <div class="calendar-big-weekdays">
-                <div class="calendar-big-weekday">일</div>
-                <div class="calendar-big-weekday">월</div>
-                <div class="calendar-big-weekday">화</div>
-                <div class="calendar-big-weekday">수</div>
-                <div class="calendar-big-weekday">목</div>
-                <div class="calendar-big-weekday">금</div>
-                <div class="calendar-big-weekday">토</div>
-            </div>
-            <div class="calendar-big-days" id="managerCalendarDays"></div>
-            <button class="calendar-close-btn" onclick="hideManagerCalendar()">닫기</button>
-        </div>
-    </div>
-
-    <div class="day-bookings-modal" id="dayBookingsModal">
-        <div class="day-bookings-content">
-            <h2 style="margin-bottom: 20px; color: #2c3e50;" id="dayBookingsTitle"></h2>
-            <div id="dayBookingsList"></div>
-            <button class="calendar-close-btn" onclick="hideDayBookings()">닫기</button>
-        </div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">예약 접수 중...</div>
     </div>
 
     <script>
-        // ⚠️ Google Apps Script 배포 후 아래 URL을 실제 웹 앱 URL로 교체하세요!
-        var GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwKyDhPTLgdQKF70G1uN-vHLz92M7SsFaCSBzg8MzL_pM6pmHPmbrDkIZ8LWwZsUuuLJQ/exec';
-        const SHEET_URL = GOOGLE_SCRIPT_URL; // 아파트 가격 관리용
+        // ===== 기본 설정 =====
+        const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwKyDhPTLgdQKF70G1uN-vHLz92M7SsFaCSBzg8MzL_pM6pmHPmbrDkIZ8LWwZsUuuLJQ/exec';
         
-        var bookings = [];
-        var managers = [];
-        var curFilter = 'all';
-        var mgrOpen = false;
-        var newOpen = false;
-        var bookOpen = true;
-        var financeOpen = true;
-        var confirmCallback = null;
-        var bigCalYear = new Date().getFullYear();
-        var bigCalMonth = new Date().getMonth();
-        var mgrCalYear = new Date().getFullYear();
-        var mgrCalMonth = new Date().getMonth();
-        var selectedManager = '';
-        
-        // 렌더링 최적화를 위한 해시 저장
-        var lastBookingsHash = '';
-        var lastManagersHash = '';
-
-        var priceTable = {
-            '30평형(20평형 포함)': { '수도관 스케일링': 150000, '난방관 스케일링': 210000, '수도관+난방관 스케일링': 280000 },
-            '40평형': { '수도관 스케일링': 180000, '난방관 스케일링': 250000, '수도관+난방관 스케일링': 320000 },
-            '50평형': { '수도관 스케일링': 210000, '난방관 스케일링': 290000, '수도관+난방관 스케일링': 360000 },
-            '60평형': { '수도관 스케일링': 250000, '난방관 스케일링': 330000, '수도관+난방관 스케일링': 400000 }
+        // 기본 가격 (fallback)
+        const defaultPrices = {
+            '30평형(20평형 포함)': { '난방': 120000, '수도': 120000, '난방+수도': 150000 },
+            '40평형': { '난방': 140000, '수도': 140000, '난방+수도': 180000 },
+            '50평형': { '난방': 160000, '수도': 160000, '난방+수도': 200000 },
+            '60평형': { '난방': 180000, '수도': 180000, '난방+수도': 220000 }
         };
 
-        var MANAGER_COST = 130000;
+        let apartmentPrices = []; // 아파트별 가격 데이터
+        let currentDate = new Date();
+        let selectedDate = null;
+        let managerSchedules = [];
+        let selectedTimeSlots = [];
+        let selectedSize = null;
+        let selectedService = null;
+        let selectedCategory = null;
+        let selectedPayment = null;
 
-        function getPrice(size, service) {
-            console.log('getPrice 호출 - size:', size, '/ service:', service);
+        // ===== 초기화 =====
+        document.addEventListener('DOMContentLoaded', function() {
+            loadManagerSchedules();
+            loadApartmentPrices();
+            setupEventListeners();
+            formatPhoneInput();
             
-            // 케이스 1: service에서 가격 추출 시도 (가장 일반적인 경우)
-            var priceMatch = service.match(/\(([0-9,]+)원\)/);
-            if (priceMatch) {
-                var extractedPrice = parseInt(priceMatch[1].replace(/,/g, ''));
-                console.log('  -> service에서 가격 추출:', extractedPrice);
-                return extractedPrice;
-            }
-            
-            // 케이스 2: size에서 가격 추출 시도 (이전 버전 데이터 호환)
-            if (size) {
-                priceMatch = size.match(/\(([0-9,]+)원\)/);
-                if (priceMatch) {
-                    var extractedPrice = parseInt(priceMatch[1].replace(/,/g, ''));
-                    console.log('  -> size에서 가격 추출:', extractedPrice);
-                    return extractedPrice;
-                }
-            }
-            
-            // 케이스 3: 가격표에서 검색 (size와 service 모두 있는 경우)
-            if (size && service && priceTable[size] && priceTable[size][service]) {
-                var price = priceTable[size][service];
-                console.log('  -> 가격표에서 찾음:', price);
-                return price;
-            }
-            
-            // 케이스 4: 서비스명 정규화 후 가격표 재검색
-            if (size && service) {
-                var normalizedService = service
-                    .replace('배관', '관')
-                    .replace(/\s*\([^)]*\)/g, '')
-                    .trim();
-                
-                if (priceTable[size] && priceTable[size][normalizedService]) {
-                    var price = priceTable[size][normalizedService];
-                    console.log('  -> 정규화 후 가격표에서 찾음:', price);
-                    return price;
-                }
-            }
-            
-            console.log('  -> 가격을 찾을 수 없음, 0 반환');
-            return 0;
-        }
+            // 0.5초마다 실시간 갱신
+            setInterval(loadApartmentPrices, 500);
+        });
 
-        function extractSize(fullSize, fullService) {
-            // fullSize에서 평형 검색
-            if (fullSize) {
-                var match = fullSize.match(/(\d+)평형/);
-                if (match) {
-                    return match[1] + '평';
-                }
-            }
-            
-            // fullSize가 없으면 fullService에서 검색
-            if (fullService) {
-                var match = fullService.match(/(\d+)평형/);
-                if (match) {
-                    return match[1] + '평';
-                }
-            }
-            
-            return '-';
-        }
+        function setupEventListeners() {
+            document.getElementById('dateSelector').addEventListener('click', openCalendar);
+            document.getElementById('closeCalendar').addEventListener('click', closeCalendar);
+            document.getElementById('prevMonth').addEventListener('click', () => changeMonth(-1));
+            document.getElementById('nextMonth').addEventListener('click', () => changeMonth(1));
+            document.getElementById('submitBtn').addEventListener('click', validateAndShowConfirm);
 
-        function extractService(fullService) {
-            if (!fullService || fullService === '') return '-';
-            // 괄호와 가격 제거
-            var cleaned = fullService.replace(/\s*\([^)]*\)/g, '').trim();
-            // 전체 서비스명 그대로 반환
-            return cleaned;
-        }
-
-        function showConfirm(message, callback) {
-            console.log('📢 Confirm 모달 표시:', message);
-            document.getElementById('confirmMessage').textContent = message;
-            document.getElementById('confirmModal').classList.add('show');
-            confirmCallback = callback;
-        }
-
-        function confirmOk() {
-            console.log('✅ 확인 버튼 클릭');
-            document.getElementById('confirmModal').classList.remove('show');
-            if (confirmCallback) confirmCallback(true);
-            confirmCallback = null;
-        }
-
-        function confirmCancel() {
-            console.log('❌ 취소 버튼 클릭');
-            document.getElementById('confirmModal').classList.remove('show');
-            if (confirmCallback) confirmCallback(false);
-            confirmCallback = null;
-        }
-
-        function loadMgrs() {
-            console.log('관리자 로드');
-            var data = localStorage.getItem('managers');
-            managers = data ? JSON.parse(data) : [];
-            renderMgrs();
-        }
-
-        function renderMgrs() {
-            var div = document.getElementById('managerList');
-            
-            // 데이터 해시 생성 (변경 감지용)
-            var currentHash = JSON.stringify(managers);
-            
-            // 데이터가 변경되지 않았으면 렌더링 스킵
-            if (currentHash === lastManagersHash && div.children.length > 0) {
-                return;
-            }
-            lastManagersHash = currentHash;
-            
-            if (managers.length === 0) {
-                div.innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">등록된 관리자가 없습니다</p>';
-                return;
-            }
-            
-            div.innerHTML = '';
-            for (var i = 0; i < managers.length; i++) {
-                var card = document.createElement('div');
-                card.className = 'manager-card';
-                
-                var btn = document.createElement('button');
-                btn.className = 'manager-remove-btn';
-                btn.textContent = '×';
-                btn.style.right = '50px';
-                btn.onclick = (function(name) {
-                    return function(e) {
-                        e.stopPropagation();
-                        console.log('🔴 삭제 버튼 클릭:', name);
-                        deleteManager(name);
-                    };
-                })(managers[i]);
-                
-                var editBtn = document.createElement('button');
-                editBtn.className = 'manager-remove-btn';
-                editBtn.textContent = '✏';
-                editBtn.style.background = '#3498db';
-                editBtn.style.right = '10px';
-                editBtn.onclick = (function(name) {
-                    return function(e) {
-                        e.stopPropagation();
-                        console.log('✏️ 수정 버튼 클릭:', name);
-                        editManager(name);
-                    };
-                })(managers[i]);
-                
-                var nameDiv = document.createElement('div');
-                nameDiv.className = 'manager-name';
-                nameDiv.textContent = '👤 ' + managers[i];
-                
-                var infoDiv = document.createElement('div');
-                infoDiv.style.fontSize = '13px';
-                infoDiv.style.color = '#666';
-                infoDiv.textContent = '스케줄 관리 (클릭하여 캘린더 보기)';
-                
-                card.onclick = (function(name) {
-                    return function() {
-                        console.log('📅 관리자 캘린더 열기:', name);
-                        showManagerCalendar(name);
-                    };
-                })(managers[i]);
-                
-                card.appendChild(btn);
-                card.appendChild(editBtn);
-                card.appendChild(nameDiv);
-                card.appendChild(infoDiv);
-                div.appendChild(card);
-            }
-            
-            console.log('관리자 렌더링 완료:', managers.length);
-        }
-
-        function showManagerCalendar(name) {
-            selectedManager = name;
-            document.getElementById('managerCalendarName').textContent = '👤 ' + name + '님의 일정';
-            document.getElementById('managerCalendarModal').classList.add('show');
-            mgrCalYear = new Date().getFullYear();
-            mgrCalMonth = new Date().getMonth();
-            renderManagerCalendar();
-        }
-
-        function hideManagerCalendar() {
-            document.getElementById('managerCalendarModal').classList.remove('show');
-        }
-
-        function prevManagerMonth() {
-            mgrCalMonth--;
-            if (mgrCalMonth < 0) {
-                mgrCalMonth = 11;
-                mgrCalYear--;
-            }
-            renderManagerCalendar();
-        }
-
-        function nextManagerMonth() {
-            mgrCalMonth++;
-            if (mgrCalMonth > 11) {
-                mgrCalMonth = 0;
-                mgrCalYear++;
-            }
-            renderManagerCalendar();
-        }
-
-        function renderManagerCalendar() {
-            var monthNames = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
-            document.getElementById('managerCalendarTitle').textContent = mgrCalYear + '년 ' + monthNames[mgrCalMonth];
-
-            var firstDay = new Date(mgrCalYear, mgrCalMonth, 1).getDay();
-            var daysInMonth = new Date(mgrCalYear, mgrCalMonth + 1, 0).getDate();
-
-            // 매니저 휴무 정보 로드
-            var vacationKey = 'vacations_' + selectedManager;
-            var vacations = JSON.parse(localStorage.getItem(vacationKey) || '[]');
-
-            var container = document.getElementById('managerCalendarDays');
-            container.innerHTML = '';
-
-            for (var i = 0; i < firstDay; i++) {
-                var empty = document.createElement('div');
-                empty.className = 'calendar-big-day empty';
-                container.appendChild(empty);
-            }
-
-            for (var day = 1; day <= daysInMonth; day++) {
-                var dateStr = mgrCalYear + '-' + String(mgrCalMonth + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
-                var dayBookings = bookings.filter(function(b) { 
-                    return b.serviceDate === dateStr && b.manager === selectedManager; 
-                });
-
-                // 휴무인지 확인
-                var isVacation = vacations.some(function(v) { return v.date === dateStr; });
-
-                var dayDiv = document.createElement('div');
-                dayDiv.className = 'calendar-big-day';
-                
-                var numDiv = document.createElement('div');
-                numDiv.className = 'calendar-big-day-number';
-                numDiv.textContent = day;
-                dayDiv.appendChild(numDiv);
-
-                if (isVacation) {
-                    dayDiv.style.background = '#ffeaea';
-                    dayDiv.style.borderColor = '#e74c3c';
-                    var vacDiv = document.createElement('div');
-                    vacDiv.style.cssText = 'background: #e74c3c; color: white; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: 700;';
-                    vacDiv.textContent = '휴무';
-                    dayDiv.appendChild(vacDiv);
-                } else if (dayBookings.length > 0) {
-                    dayDiv.classList.add('has-bookings');
-                    var countDiv = document.createElement('div');
-                    countDiv.className = 'calendar-booking-count';
-                    countDiv.textContent = dayBookings.length + '건';
-                    dayDiv.appendChild(countDiv);
-
-                    dayDiv.onclick = (function(date, bks) {
-                        return function() {
-                            showDayBookings(date, bks);
-                        };
-                    })(dateStr, dayBookings);
-                }
-
-                container.appendChild(dayDiv);
-            }
-        }
-
-        function showDayBookings(date, dayBookings) {
-            document.getElementById('dayBookingsTitle').textContent = '📅 ' + date + ' 예약 (' + dayBookings.length + '건)';
-            
-            var list = document.getElementById('dayBookingsList');
-            list.innerHTML = '';
-            
-            for (var i = 0; i < dayBookings.length; i++) {
-                var b = dayBookings[i];
-                var card = document.createElement('div');
-                card.className = 'booking-card';
-                card.style.marginBottom = '15px';
-                
-                card.innerHTML = '<div class="customer-name">' + b.name + '</div>' +
-                    '<div class="info-item">📞 ' + b.phone + '</div>' +
-                    '<div class="info-item">📍 ' + b.address + '</div>' +
-                    '<div class="info-item">🏠 ' + b.service + '</div>';
-                
-                list.appendChild(card);
-            }
-            
-            document.getElementById('dayBookingsModal').classList.add('show');
-        }
-
-        function hideDayBookings() {
-            document.getElementById('dayBookingsModal').classList.remove('show');
-        }
-
-        function editManager(name) {
-            console.log('✏️ 매니저 수정:', name);
-            
-            // 매니저 정보 가져오기
-            var managerId = localStorage.getItem('managerName:' + name);
-            if (!managerId) {
-                alert('매니저 정보를 찾을 수 없습니다!');
-                return;
-            }
-            
-            var managerData = localStorage.getItem('manager:' + managerId);
-            if (!managerData) {
-                alert('매니저 정보를 찾을 수 없습니다!');
-                return;
-            }
-            
-            var manager = JSON.parse(managerData);
-            
-            var newPhone = prompt('전화번호:', manager.phone);
-            if (newPhone === null) return;
-            
-            var newAge = prompt('나이:', manager.age);
-            if (newAge === null) return;
-            
-            var newAddress = prompt('주소:', manager.address);
-            if (newAddress === null) return;
-            
-            var newPassword = prompt('새 비밀번호 (변경하지 않으려면 그대로 두세요):', manager.password);
-            if (newPassword === null) return;
-            
-            var confirmMsg = '매니저 정보를 수정하시겠습니까?\n\n';
-            confirmMsg += '이름: ' + manager.name + '\n';
-            confirmMsg += '전화번호: ' + manager.phone + ' → ' + newPhone + '\n';
-            confirmMsg += '나이: ' + manager.age + ' → ' + newAge + '\n';
-            confirmMsg += '주소: ' + manager.address + ' → ' + newAddress + '\n';
-            if (newPassword !== manager.password) {
-                confirmMsg += '비밀번호: 변경됨';
-            }
-            
-            showConfirm(confirmMsg, function(result) {
-                if (!result) {
-                    console.log('❌ 매니저 수정 취소');
-                    return;
-                }
-                
-                console.log('✅ 매니저 수정 진행');
-                
-                manager.phone = newPhone;
-                manager.age = newAge;
-                manager.address = newAddress;
-                manager.password = newPassword;
-                manager.updatedAt = new Date().toISOString();
-                
-                localStorage.setItem('manager:' + managerId, JSON.stringify(manager));
-                
-                console.log('✅ 매니저 수정 완료');
-                alert('✅ 매니저 정보가 수정되었습니다!');
-                loadMgrs();
+            setupSingleSelect('sizeOptions', (value) => {
+                selectedSize = value;
+                updateServiceOptions();
+                updatePrice();
             });
-        }
 
-        function deleteManager(name) {
-            console.log('🔴 deleteManager 호출:', name);
-            showConfirm('정말로 "' + name + '" 관리자를 삭제하시겠습니까?', function(result) {
-                console.log('Confirm 결과:', result);
-                
-                if (!result) {
-                    console.log('삭제 취소됨');
-                    return;
-                }
-                
-                console.log('삭제 진행 중...');
-                var idx = managers.indexOf(name);
-                if (idx > -1) {
-                    managers.splice(idx, 1);
-                    localStorage.setItem('managers', JSON.stringify(managers));
-                    
-                    var managerId = localStorage.getItem('managerName:' + name);
-                    if (managerId) {
-                        localStorage.removeItem('manager:' + managerId);
-                        localStorage.removeItem('managerName:' + name);
-                    }
-                    
-                    // 해시 강제 리셋 (다시 렌더링되도록)
-                    lastManagersHash = '';
-                    lastBookingsHash = '';
-                    
-                    loadMgrs();
-                    alert('✅ 관리자가 삭제되었습니다!');
-                    console.log('✅ 삭제 완료');
+            setupSingleSelect('serviceOptions', (value) => {
+                selectedService = value;
+                updatePrice();
+            });
+
+            setupSingleSelect('categoryOptions', (value) => {
+                selectedCategory = value;
+            });
+
+            setupSingleSelect('paymentOptions', (value, element) => {
+                selectedPayment = value;
+                updatePrice();
+            });
+
+            setupMultiSelect('timeOptions', (values) => {
+                selectedTimeSlots = values;
+            });
+            
+            // 아파트명 입력 시 가격 업데이트
+            document.getElementById('aptName').addEventListener('input', () => {
+                if (selectedSize && selectedService) {
+                    updateServiceOptions();
+                    updatePrice();
                 }
             });
         }
 
-        function toggleMgr() {
-            console.log('관리자 섹션 토글');
-            mgrOpen = !mgrOpen;
-            document.getElementById('managerList').style.display = mgrOpen ? 'grid' : 'none';
-        }
-
-        function toggleNew() {
-            console.log('신규예약 섹션 토글');
-            newOpen = !newOpen;
-            document.getElementById('newBookingList').style.display = newOpen ? 'block' : 'none';
-        }
-
-        function toggleBook() {
-            console.log('예약 섹션 토글');
-            bookOpen = !bookOpen;
-            document.getElementById('bookingSection').style.display = bookOpen ? 'block' : 'none';
-        }
-
-        function toggleFinance() {
-            console.log('재정관리 섹션 토글');
-            financeOpen = !financeOpen;
-            document.getElementById('financeSection').style.display = financeOpen ? 'block' : 'none';
-        }
-
-        function showAddModal() {
-            console.log('관리자 추가 모달 열기');
-            document.getElementById('addManagerModal').classList.add('show');
-        }
-
-        function hideAddModal() {
-            console.log('관리자 추가 모달 닫기');
-            document.getElementById('addManagerModal').classList.remove('show');
-        }
-
-        function addMgr() {
-            console.log('관리자 추가 시도');
-            var name = document.getElementById('managerName').value.trim();
-            var age = document.getElementById('managerAge').value.trim();
-            var phone = document.getElementById('managerPhone').value.trim();
-            var address = document.getElementById('managerAddress').value.trim();
-            var userId = document.getElementById('managerId').value.trim();
-            var password = document.getElementById('managerPassword').value.trim();
-
-            if (!name || !age || !phone || !address || !userId || !password) {
-                alert('모든 필드를 입력해주세요!');
-                return;
-            }
-
-            if (managers.indexOf(name) !== -1) {
-                alert('이미 존재하는 이름입니다!');
-                return;
-            }
-
-            var confirmMsg = '새 매니저를 등록하시겠습니까?\n\n이름: ' + name + '\n나이: ' + age + '\n전화번호: ' + phone + '\n아이디: ' + userId;
-            
-            showConfirm(confirmMsg, function(result) {
-                if (!result) {
-                    console.log('❌ 매니저 등록 취소');
-                    return;
-                }
+        function setupSingleSelect(containerId, callback) {
+            const container = document.getElementById(containerId);
+            container.addEventListener('click', function(e) {
+                const card = e.target.closest('.service-card');
+                if (!card || card.classList.contains('disabled')) return;
                 
-                console.log('✅ 관리자 추가 진행');
-                var managerData = { name: name, age: age, phone: phone, address: address, userId: userId, password: password };
-                managers.push(name);
-                localStorage.setItem('managers', JSON.stringify(managers));
-                localStorage.setItem('manager:' + userId, JSON.stringify(managerData));
-                localStorage.setItem('managerName:' + name, userId);
-
-                document.getElementById('managerName').value = '';
-                document.getElementById('managerAge').value = '';
-                document.getElementById('managerPhone').value = '';
-                document.getElementById('managerAddress').value = '';
-                document.getElementById('managerId').value = '';
-                document.getElementById('managerPassword').value = '';
-
-                hideAddModal();
-                if (!mgrOpen) toggleMgr();
-                loadMgrs();
-                alert('✅ ' + name + ' 관리자 회원가입 완료!\n\n아이디: ' + userId + '\n비밀번호: ' + password);
+                container.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                callback(card.dataset.value, card);
             });
         }
 
-        function loadBooks() {
-            console.log('📋 예약 로드 시작');
-            bookings = [];
-            for (var i = 0; i < localStorage.length; i++) {
-                var key = localStorage.key(i);
-                if (key && key.indexOf('booking:') === 0) {
-                    try {
-                        var booking = JSON.parse(localStorage.getItem(key));
-                        bookings.push(booking);
-                        console.log('  - 로드:', booking.name, '/', booking.status);
-                    } catch (e) {
-                        console.log('  - 에러:', e);
-                    }
-                }
-            }
-            console.log('총 ' + bookings.length + '건 로드 완료');
-            
-            // 스마트 정렬: 날짜 → 시간대 → 아파트 → 동
-            bookings.sort(function(a, b) {
-                // 1순위: 날짜
-                var dateA = a.serviceDate || '9999-12-31';
-                var dateB = b.serviceDate || '9999-12-31';
-                if (dateA !== dateB) {
-                    return dateA.localeCompare(dateB);
-                }
+        function setupMultiSelect(containerId, callback) {
+            const container = document.getElementById(containerId);
+            container.addEventListener('click', function(e) {
+                const card = e.target.closest('.service-card');
+                if (!card || card.classList.contains('disabled')) return;
                 
-                // 2순위: 시간대
-                var timeOrderA = getTimeSlotOrder(a.timeSlots);
-                var timeOrderB = getTimeSlotOrder(b.timeSlots);
-                if (timeOrderA !== timeOrderB) {
-                    return timeOrderA - timeOrderB;
-                }
+                const allDayCard = container.querySelector('[data-value="종일 가능 (9시-7시)"]');
                 
-                // 3순위: 아파트 이름
-                var aptA = extractApartmentName(a.address);
-                var aptB = extractApartmentName(b.address);
-                if (aptA !== aptB) {
-                    return aptA.localeCompare(aptB);
-                }
-                
-                // 4순위: 동 번호
-                var dongA = extractDongNumber(a.address);
-                var dongB = extractDongNumber(b.address);
-                return dongA - dongB;
-            });
-            
-            console.log('✅ 스마트 정렬 완료 (날짜→시간→아파트→동)');
-            renderNewBooks();
-            renderBooks();
-            renderFinance();
-            updateStats();
-        }
-        
-        // 시간대 순서 추출 (작은 숫자가 먼저)
-        function getTimeSlotOrder(timeSlots) {
-            if (!timeSlots || timeSlots.length === 0) return 999;
-            
-            var slot = timeSlots[0]; // 첫 번째 시간대 기준
-            if (slot.indexOf('오전') !== -1 || slot.indexOf('9') !== -1) return 1;
-            if (slot.indexOf('오후 1') !== -1 || slot.indexOf('13') !== -1) return 2;
-            if (slot.indexOf('오후 4') !== -1 || slot.indexOf('16') !== -1) return 3;
-            if (slot.indexOf('종일') !== -1) return 0; // 종일은 가장 먼저
-            return 999;
-        }
-        
-        // 주소에서 아파트 이름 추출
-        function extractApartmentName(address) {
-            if (!address) return '';
-            
-            // "아파트" 또는 "APT" 앞의 단어 추출
-            var aptMatch = address.match(/([가-힣A-Za-z0-9]+(?:아파트|APT|빌라|타워|팰리스))/i);
-            if (aptMatch) {
-                return aptMatch[1];
-            }
-            
-            return '';
-        }
-        
-        // 주소에서 동 번호 추출
-        function extractDongNumber(address) {
-            if (!address) return 999999;
-            
-            // "101동", "1동", "A동" 등 추출
-            var dongMatch = address.match(/(\d+)동/);
-            if (dongMatch) {
-                return parseInt(dongMatch[1]);
-            }
-            
-            // 동이 없으면 끝으로
-            return 999999;
-        }
-
-        function renderNewBooks() {
-            var div = document.getElementById('newBookingList');
-            // 배정전송되지 않은 신규예약만 표시
-            var newBookings = bookings.filter(function(b) { 
-                return b.status === 'received' && b.assignmentSent !== true; 
-            });
-            
-            // 데이터 해시 생성 (변경 감지용)
-            var currentHash = JSON.stringify(newBookings.map(function(b) {
-                return b.id + b.status + b.manager + b.assignmentSent;
-            }));
-            
-            // 데이터가 변경되지 않았으면 렌더링 스킵
-            if (currentHash === lastBookingsHash && div.children.length > 0) {
-                return;
-            }
-            lastBookingsHash = currentHash;
-
-            if (newBookings.length === 0) {
-                div.innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">신규예약이 없습니다</p>';
-                return;
-            }
-
-            // 스마트 정렬: 1차=접수날짜, 2차=아파트, 3차=동
-            newBookings.sort(function(a, b) {
-                // 1차: 접수날짜 오름차순
-                var dateA = a.receivedDate || '';
-                var dateB = b.receivedDate || '';
-                if (dateA !== dateB) {
-                    return dateA.localeCompare(dateB);
-                }
-                
-                // 2차: 아파트 이름 (주소에서 추출)
-                var aptA = extractApartmentName(a.address || '');
-                var aptB = extractApartmentName(b.address || '');
-                if (aptA !== aptB) {
-                    return aptA.localeCompare(aptB);
-                }
-                
-                // 3차: 동 번호
-                var dongA = extractDong(a.address || '');
-                var dongB = extractDong(b.address || '');
-                return dongA.localeCompare(dongB);
-            });
-
-            div.innerHTML = '';
-            for (var i = 0; i < newBookings.length; i++) {
-                var b = newBookings[i];
-                renderBookingCard(b, div);
-            }
-        }
-
-        // 주소에서 아파트 이름 추출 (예: "송파구 헬리오시티 621동 1302호" → "헬리오시티")
-        function extractApartmentName(address) {
-            if (!address) return '';
-            var parts = address.split(' ');
-            return parts.length >= 2 ? parts[1] : '';
-        }
-
-        // 주소에서 동 추출 (예: "송파구 헬리오시티 621동 1302호" → "621동")
-        function extractDong(address) {
-            if (!address) return '';
-            var parts = address.split(' ');
-            return parts.length >= 3 ? parts[2] : '';
-        }
-
-        function setFilter(filter) {
-            console.log('필터 변경:', filter);
-            curFilter = filter;
-            var btns = document.querySelectorAll('.filter-btn');
-            for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
-            event.target.classList.add('active');
-            renderBooks();
-        }
-
-        function renderBooks() {
-            var div = document.getElementById('bookingList');
-            
-            // 신규예약(received)은 제외하고, 예약확정 이상만 표시
-            var filtered = bookings.filter(function(b) { 
-                return b.status !== 'received' && (curFilter === 'all' || b.status === curFilter);
-            });
-
-            if (filtered.length === 0) {
-                div.innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">예약이 없습니다</p>';
-                return;
-            }
-
-            // 날짜별로 그룹화
-            var groupedByDate = {};
-            filtered.forEach(function(booking) {
-                var date = booking.serviceDate || '날짜미정';
-                if (!groupedByDate[date]) {
-                    groupedByDate[date] = [];
-                }
-                groupedByDate[date].push(booking);
-            });
-
-            // 날짜 정렬
-            var sortedDates = Object.keys(groupedByDate).sort();
-
-            // 오늘 날짜
-            var today = new Date();
-            var todayStr = today.getFullYear() + '-' + 
-                          String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-                          String(today.getDate()).padStart(2, '0');
-
-            div.innerHTML = '';
-            
-            sortedDates.forEach(function(date) {
-                var bookingsOnDate = groupedByDate[date];
-                
-                // 날짜 헤더
-                var dateHeader = document.createElement('div');
-                dateHeader.style.cssText = 'background: linear-gradient(135deg, #00AEEF 0%, #0088CC 100%); color: white; padding: 15px 20px; border-radius: 12px; margin-bottom: 15px; margin-top: 20px; font-size: 18px; font-weight: 800; display: flex; justify-content: space-between; align-items: center;';
-                
-                var dateText = document.createElement('span');
-                if (date === todayStr) {
-                    dateText.textContent = '📅 오늘 (' + formatDateKorean(date) + ')';
-                    dateHeader.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
-                } else if (date === getDateString(1)) {
-                    dateText.textContent = '📅 내일 (' + formatDateKorean(date) + ')';
-                    dateHeader.style.background = 'linear-gradient(135deg, #f39c12 0%, #e67e22 100%)';
-                } else if (date === getDateString(2)) {
-                    dateText.textContent = '📅 모레 (' + formatDateKorean(date) + ')';
-                    dateHeader.style.background = 'linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%)';
+                if (card.dataset.value === '종일 가능 (9시-7시)') {
+                    container.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
                 } else {
-                    dateText.textContent = '📅 ' + formatDateKorean(date);
+                    if (allDayCard) allDayCard.classList.remove('selected');
+                    card.classList.toggle('selected');
                 }
                 
-                var countBadge = document.createElement('span');
-                countBadge.textContent = bookingsOnDate.length + '건';
-                countBadge.style.cssText = 'background: rgba(255,255,255,0.3); padding: 5px 15px; border-radius: 20px; font-size: 14px;';
-                
-                dateHeader.appendChild(dateText);
-                dateHeader.appendChild(countBadge);
-                div.appendChild(dateHeader);
-                
-                // 해당 날짜의 예약들
-                bookingsOnDate.forEach(function(booking) {
-                    renderBookingCard(booking, div);
-                });
+                const selected = Array.from(container.querySelectorAll('.service-card.selected')).map(c => c.dataset.value);
+                callback(selected);
             });
         }
 
-        // 날짜를 한글 형식으로 변환 (2024-01-15 → 2024년 1월 15일)
-        function formatDateKorean(dateStr) {
-            if (dateStr === '날짜미정') return '날짜미정';
-            var parts = dateStr.split('-');
-            return parts[0] + '년 ' + parseInt(parts[1]) + '월 ' + parseInt(parts[2]) + '일';
-        }
-
-        // 오늘로부터 N일 후의 날짜 문자열 반환
-        function getDateString(daysOffset) {
-            var date = new Date();
-            date.setDate(date.getDate() + daysOffset);
-            return date.getFullYear() + '-' + 
-                   String(date.getMonth() + 1).padStart(2, '0') + '-' + 
-                   String(date.getDate()).padStart(2, '0');
-        }
-
-        function renderBookingCard(b, container) {
-            var statusNames = { 'received': '예약접수', 'confirmed': '예약확정', 'scheduled': '스케줄픽스', 'started': '작업시작', 'completed': '작업완료', 'paid': '입금완료' };
-            var statusColors = { 'received': '#e67e22', 'confirmed': '#f39c12', 'scheduled': '#9b59b6', 'started': '#3498db', 'completed': '#27ae60', 'paid': '#1abc9c' };
-
-            var card = document.createElement('div');
-            card.className = 'booking-card';
-            
-            var name = document.createElement('div');
-            name.className = 'customer-name';
-            name.textContent = b.name;
-            card.appendChild(name);
-            
-            var info1 = document.createElement('div');
-            info1.className = 'info-item';
-            info1.textContent = '📞 ' + b.phone;
-            card.appendChild(info1);
-            
-            var info2 = document.createElement('div');
-            info2.className = 'info-item';
-            info2.textContent = '📍 ' + b.address;
-            card.appendChild(info2);
-            
-            var info3 = document.createElement('div');
-            info3.className = 'info-item';
-            info3.textContent = '🏠 ' + b.service;
-            card.appendChild(info3);
-            
-            var info4 = document.createElement('div');
-            info4.className = 'info-item';
-            info4.textContent = '📅 ' + (b.serviceDate || '미지정');
-            card.appendChild(info4);
-            
-            // 고객 희망 시간대 표시
-            if (b.timeSlots && b.timeSlots.length > 0) {
-                var info5 = document.createElement('div');
-                info5.className = 'info-item';
-                info5.style.cssText = 'background: #fff3cd; color: #856404; padding: 8px 12px; border-radius: 8px; font-weight: 600; margin-top: 8px;';
-                info5.textContent = '🕐 고객 희망: ' + b.timeSlots.join(', ');
-                card.appendChild(info5);
-            }
-            
-            // 매니저가 선택한 정확한 시작 시간 표시
-            if (b.actualStartTime) {
-                var info6 = document.createElement('div');
-                info6.className = 'info-item';
-                info6.style.cssText = 'background: #d4edda; color: #155724; padding: 8px 12px; border-radius: 8px; font-weight: 700; margin-top: 8px;';
-                info6.textContent = '✅ 시작 시간: ' + b.actualStartTime + ' (매니저 확정)';
-                card.appendChild(info6);
-            }
-            
-            var badgeContainer = document.createElement('div');
-            badgeContainer.style.margin = '12px 0';
-            
-            if (b.manager && b.manager !== '미배정') {
-                if (b.assignmentAccepted === true) {
-                    var acceptBadge = document.createElement('div');
-                    acceptBadge.style.cssText = 'background: #27ae60; color: white; padding: 8px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; display: inline-block; margin: 8px 8px 8px 0;';
-                    acceptBadge.textContent = '✅ 수락완료';
-                    badgeContainer.appendChild(acceptBadge);
-                } else if (b.assignmentSent === true) {
-                    var sentBadge = document.createElement('div');
-                    sentBadge.style.cssText = 'background: #f39c12; color: white; padding: 8px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; display: inline-block; margin: 8px 8px 8px 0;';
-                    sentBadge.textContent = '📤 배정전송됨';
-                    badgeContainer.appendChild(sentBadge);
+        function formatPhoneInput() {
+            const phoneInput = document.getElementById('phone');
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/[^\d]/g, '');
+                if (value.length > 3 && value.length <= 7) {
+                    value = value.slice(0, 3) + '-' + value.slice(3);
+                } else if (value.length > 7) {
+                    value = value.slice(0, 3) + '-' + value.slice(3, 7) + '-' + value.slice(7, 11);
                 }
-            }
-            
-            var statusBadge = document.createElement('span');
-            statusBadge.className = 'status-badge';
-            statusBadge.style.background = statusColors[b.status];
-            statusBadge.style.color = 'white';
-            statusBadge.textContent = statusNames[b.status];
-            badgeContainer.appendChild(statusBadge);
-            
-            // 매니저가 상태를 변경한 경우 표시
-            if (b.statusChangedBy && b.statusChangedTime) {
-                var changedInfo = document.createElement('div');
-                changedInfo.style.cssText = 'background: #e8f4f8; color: #00AEEF; padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; display: inline-block; margin: 8px 8px 8px 0;';
-                var time = new Date(b.statusChangedTime);
-                var timeStr = time.getHours() + ':' + String(time.getMinutes()).padStart(2, '0');
-                changedInfo.textContent = '🔄 ' + b.statusChangedBy + '님이 변경 (' + timeStr + ')';
-                badgeContainer.appendChild(changedInfo);
-            }
-            
-            card.appendChild(badgeContainer);
-            
-            var actions = document.createElement('div');
-            actions.className = 'booking-actions';
-            
-            var select = document.createElement('select');
-            select.style.padding = '10px';
-            select.style.border = '2px solid #e0e0e0';
-            select.style.borderRadius = '8px';
-            
-            // 현재 매니저 값을 data 속성으로 저장
-            var currentManager = b.manager || '';
-            select.setAttribute('data-current-manager', currentManager);
-            
-            var opt0 = document.createElement('option');
-            opt0.value = '';
-            opt0.textContent = '미배정';
-            select.appendChild(opt0);
-            for (var j = 0; j < managers.length; j++) {
-                var opt = document.createElement('option');
-                opt.value = managers[j];
-                opt.textContent = managers[j];
-                if (b.manager === managers[j]) opt.selected = true;
-                select.appendChild(opt);
-            }
-            
-            select.onchange = (function(id, selectElement) {
-                return function(e) {
-                    var newValue = this.value;
-                    var oldValue = this.getAttribute('data-current-manager');
-                    
-                    // 실제로 값이 변경되었을 때만 updateManager 호출
-                    if (newValue !== oldValue) {
-                        updateManagerWithRevert(id, newValue, selectElement);
-                    }
-                };
-            })(b.id, select);
-            actions.appendChild(select);
-            
-            if (b.manager && b.manager !== '미배정') {
-                if (b.assignmentAccepted !== true && b.assignmentSent !== true) {
-                    var assignBtn = document.createElement('button');
-                    assignBtn.className = 'btn btn-success';
-                    assignBtn.textContent = '📤 배정전송';
-                    assignBtn.onclick = (function(id) {
-                        return function() {
-                            sendAssign(id);
-                        };
-                    })(b.id);
-                    actions.appendChild(assignBtn);
-                } else if (b.assignmentSent === true && b.assignmentAccepted !== true) {
-                    var waitBtn = document.createElement('button');
-                    waitBtn.className = 'btn btn-primary';
-                    waitBtn.style.background = '#95a5a6';
-                    waitBtn.style.cursor = 'default';
-                    waitBtn.textContent = '배정전송 완료';
-                    actions.appendChild(waitBtn);
-                }
-            }
-            
-            // 입금완료 버튼 (작업완료 상태일 때만 표시)
-            if (b.status === 'completed') {
-                var paidBtn = document.createElement('button');
-                paidBtn.className = 'btn';
-                paidBtn.style.background = '#1abc9c';
-                paidBtn.textContent = '💰 입금완료';
-                paidBtn.onclick = (function(id, nm) {
-                    return function() {
-                        markAsPaid(id, nm);
-                    };
-                })(b.id, b.name);
-                actions.appendChild(paidBtn);
-            }
-            
-            var editBtn = document.createElement('button');
-            editBtn.className = 'btn btn-info';
-            editBtn.textContent = '수정';
-            editBtn.onclick = (function(booking) {
-                return function() {
-                    editBooking(booking);
-                };
-            })(b);
-            actions.appendChild(editBtn);
-            
-            var delBtn = document.createElement('button');
-            delBtn.className = 'btn btn-danger';
-            delBtn.textContent = '삭제';
-            delBtn.onclick = (function(id, nm) {
-                return function() {
-                    deleteBooking(id, nm);
-                };
-            })(b.id, b.name);
-            actions.appendChild(delBtn);
-            
-            card.appendChild(actions);
-            container.appendChild(card);
-        }
-
-        function renderFinance() {
-            console.log('💰 재정관리 렌더링 시작');
-            var tbody = document.getElementById('financeBody');
-            tbody.innerHTML = '';
-            
-            var completedBookings = bookings.filter(function(b) { 
-                var isCompleted = b.status === 'completed' || b.status === 'paid';
-                console.log('  - ' + b.name + ' (' + b.status + '): ' + (isCompleted ? 'O 포함' : 'X 제외'));
-                return isCompleted;
-            });
-
-            console.log('완료된 예약: ' + completedBookings.length + '건');
-
-            if (completedBookings.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="16" style="text-align: center; color: #999; padding: 40px;">완료된 예약이 없습니다<br><small>(작업완료 또는 입금완료 상태만 표시됩니다)</small></td></tr>';
-                return;
-            }
-
-            // 총계 계산
-            var totalRevenue = 0;
-            var totalManagerPay = 0;
-            var totalProfit = 0;
-            var totalUnpaid = 0;
-
-            for (var i = 0; i < completedBookings.length; i++) {
-                var b = completedBookings[i];
-                console.log('재정 행 생성:', b.name);
-                
-                var row = document.createElement('tr');
-                
-                // 1. 번호
-                var numCell = document.createElement('td');
-                numCell.textContent = (i + 1);
-                numCell.style.textAlign = 'center';
-                row.appendChild(numCell);
-                
-                // 2. 접수날짜
-                var receivedDateCell = document.createElement('td');
-                receivedDateCell.textContent = b.receivedDate || b.createdAt || '-';
-                row.appendChild(receivedDateCell);
-                
-                // 3. 서비스날짜
-                var serviceDateCell = document.createElement('td');
-                serviceDateCell.textContent = b.serviceDate || '미지정';
-                row.appendChild(serviceDateCell);
-                
-                // 4. 이름/전화/주소
-                var contactCell = document.createElement('td');
-                contactCell.innerHTML = '<strong>' + b.name + '</strong><br><small>' + b.phone + '</small><br><small style="color:#666;">' + b.address + '</small>';
-                row.appendChild(contactCell);
-                
-                // 5. 평형
-                var sizeCell = document.createElement('td');
-                sizeCell.textContent = extractSize(b.size || '', b.service || '');
-                sizeCell.style.textAlign = 'center';
-                row.appendChild(sizeCell);
-                
-                // 6. 서비스
-                var serviceCell = document.createElement('td');
-                serviceCell.textContent = extractService(b.service || '');
-                row.appendChild(serviceCell);
-                
-                // 7. 매니저
-                var managerCell = document.createElement('td');
-                managerCell.textContent = b.manager || '미배정';
-                managerCell.style.textAlign = 'center';
-                row.appendChild(managerCell);
-                
-                // 8. 작업현황
-                var statusCell = document.createElement('td');
-                statusCell.textContent = b.status === 'paid' ? '입금완료' : '작업완료';
-                statusCell.style.textAlign = 'center';
-                statusCell.style.fontWeight = 'bold';
-                statusCell.style.color = b.status === 'paid' ? '#27ae60' : '#f39c12';
-                row.appendChild(statusCell);
-                
-                // 9. 총매출 (편집 가능)
-                var revenue = b.revenue || getPrice(b.size || '', b.service || '');
-                totalRevenue += revenue;
-                var revenueCell = document.createElement('td');
-                revenueCell.innerHTML = '<span class="editable" onclick="editField(\'' + b.id + '\', \'revenue\', ' + revenue + ')">' + revenue.toLocaleString() + '</span>';
-                revenueCell.style.textAlign = 'right';
-                revenueCell.style.fontWeight = 'bold';
-                row.appendChild(revenueCell);
-                
-                // 10. 매니저페이 (편집 가능)
-                var managerPay = b.managerPay || 0;
-                totalManagerPay += managerPay;
-                var payCell = document.createElement('td');
-                payCell.innerHTML = '<span class="editable" onclick="editField(\'' + b.id + '\', \'managerPay\', ' + managerPay + ')">' + managerPay.toLocaleString() + '</span>';
-                payCell.style.textAlign = 'right';
-                payCell.style.color = '#e74c3c';
-                row.appendChild(payCell);
-                
-                // 11. 순이익 (자동 계산)
-                var profit = revenue - managerPay;
-                totalProfit += profit;
-                var profitCell = document.createElement('td');
-                profitCell.textContent = profit.toLocaleString();
-                profitCell.style.textAlign = 'right';
-                profitCell.style.fontWeight = 'bold';
-                profitCell.style.color = profit >= 0 ? '#27ae60' : '#e74c3c';
-                row.appendChild(profitCell);
-                
-                // 12. 결제방법 (편집 가능)
-                var paymentCell = document.createElement('td');
-                paymentCell.innerHTML = '<span class="editable" onclick="editPaymentMethod(\'' + b.id + '\', \'' + (b.paymentMethod || '') + '\')">' + (b.paymentMethod || '미지정') + '</span>';
-                paymentCell.style.textAlign = 'center';
-                row.appendChild(paymentCell);
-                
-                // 13. 입금일 (편집 가능)
-                var depositDateCell = document.createElement('td');
-                depositDateCell.innerHTML = '<span class="editable" onclick="editDepositDate(\'' + b.id + '\', \'' + (b.depositDate || '') + '\')">' + (b.depositDate || '-') + '</span>';
-                depositDateCell.style.textAlign = 'center';
-                row.appendChild(depositDateCell);
-                
-                // 14. 미수금 (편집 가능)
-                var unpaid = b.unpaid || 0;
-                totalUnpaid += unpaid;
-                var unpaidCell = document.createElement('td');
-                unpaidCell.innerHTML = '<span class="editable" onclick="editField(\'' + b.id + '\', \'unpaid\', ' + unpaid + ')">' + unpaid.toLocaleString() + '</span>';
-                unpaidCell.style.textAlign = 'right';
-                unpaidCell.style.color = unpaid > 0 ? '#e74c3c' : '#27ae60';
-                unpaidCell.style.fontWeight = 'bold';
-                row.appendChild(unpaidCell);
-                
-                // 15. 구분 (편집 가능)
-                var categoryCell = document.createElement('td');
-                categoryCell.innerHTML = '<span class="editable" onclick="editCategory(\'' + b.id + '\', \'' + (b.category || '') + '\')">' + (b.category || '개인') + '</span>';
-                categoryCell.style.textAlign = 'center';
-                row.appendChild(categoryCell);
-                
-                // 16. 수정 버튼
-                var editCell = document.createElement('td');
-                var editBtn = document.createElement('button');
-                editBtn.textContent = '✏️';
-                editBtn.className = 'btn btn-info';
-                editBtn.style.padding = '6px 12px';
-                editBtn.onclick = (function(booking) {
-                    return function() {
-                        editFinanceRecord(booking);
-                    };
-                })(b);
-                editCell.appendChild(editBtn);
-                editCell.style.textAlign = 'center';
-                row.appendChild(editCell);
-                
-                tbody.appendChild(row);
-            }
-            
-            // 총계 행 추가
-            var totalRow = document.createElement('tr');
-            totalRow.style.background = '#f0f8ff';
-            totalRow.style.fontWeight = 'bold';
-            totalRow.style.borderTop = '3px solid #00AEEF';
-            totalRow.innerHTML = 
-                '<td colspan="8" style="text-align: right; padding-right: 20px; font-size: 18px;">총계</td>' +
-                '<td style="text-align: right; color: #2c3e50; font-size: 18px;">' + totalRevenue.toLocaleString() + '원</td>' +
-                '<td style="text-align: right; color: #e74c3c; font-size: 18px;">' + totalManagerPay.toLocaleString() + '원</td>' +
-                '<td style="text-align: right; color: #27ae60; font-size: 20px;">' + totalProfit.toLocaleString() + '원</td>' +
-                '<td colspan="2"></td>' +
-                '<td style="text-align: right; color: #e74c3c; font-size: 18px;">' + totalUnpaid.toLocaleString() + '원</td>' +
-                '<td colspan="2"></td>';
-            tbody.appendChild(totalRow);
-            
-            console.log('재정관리 렌더링 완료 - 총매출:', totalRevenue, '/ 순이익:', totalProfit);
-        }
-
-        // 입금완료 처리 함수
-        function markAsPaid(id, name) {
-            showConfirm('"' + name + '" 고객의 입금이 완료되었습니까?', function(result) {
-                if (!result) return;
-                
-                for (var i = 0; i < bookings.length; i++) {
-                    if (bookings[i].id === id) {
-                        bookings[i].status = 'paid';
-                        bookings[i].depositDate = new Date().toISOString().split('T')[0];
-                        bookings[i].unpaid = 0;
-                        localStorage.setItem('booking:' + id, JSON.stringify(bookings[i]));
-                        
-                        // Google Sheets 입금 처리
-                        syncPaymentToGoogleSheets(bookings[i]);
-                        
-                        alert('✅ 입금완료 처리되었습니다!');
-                        loadBooks();
-                        break;
-                    }
-                }
+                e.target.value = value;
             });
         }
 
-        // Google Sheets 동기화 함수
-        function syncToGoogleSheets(booking, action) {
-            if (!GOOGLE_SCRIPT_URL) {
-                console.log('⚠️ GOOGLE_SCRIPT_URL이 설정되지 않았습니다.');
-                return;
-            }
-            
-            console.log('📊 Google Sheets 동기화:', booking.name, action);
-            
-            var payload = {
-                action: action || 'updateStatus',
-                bookingId: booking.id,
-                workStatus: booking.status === 'completed' ? '완료' : 
-                           booking.status === 'started' ? '진행중' : 
-                           booking.status === 'scheduled' ? '확정' : '대기',
-                worker: booking.manager || '',
-                actualStartTime: booking.actualStartTime || ''
-            };
-            
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-            .then(function() {
-                console.log('✅ Google Sheets 동기화 완료');
-            })
-            .catch(function(error) {
-                console.error('❌ Google Sheets 동기화 실패:', error);
-            });
-        }
-        
-        // 입금 처리 Google Sheets 동기화
-        function syncPaymentToGoogleSheets(booking) {
-            if (!GOOGLE_SCRIPT_URL) {
-                console.log('⚠️ GOOGLE_SCRIPT_URL이 설정되지 않았습니다.');
-                return;
-            }
-            
-            console.log('💰 입금 처리 동기화:', booking.name);
-            
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'updatePayment',
-                    bookingId: booking.id
-                })
-            })
-            .then(function() {
-                console.log('✅ 입금 처리 동기화 완료');
-            })
-            .catch(function(error) {
-                console.error('❌ 입금 처리 동기화 실패:', error);
-            });
-        }
-
-        function updateManagerWithRevert(id, mgr, selectElement) {
-            console.log('관리자 변경 시도:', id, mgr);
-            
-            var bookingName = '';
-            var oldManager = selectElement.getAttribute('data-current-manager');
-            
-            for (var i = 0; i < bookings.length; i++) {
-                if (bookings[i].id === id) {
-                    bookingName = bookings[i].name;
-                    break;
+        // ===== 스케줄 로딩 =====
+        async function loadManagerSchedules() {
+            try {
+                const response = await fetch(`${SHEET_URL}?action=getManagerSchedules`);
+                const data = await response.json();
+                if (data.success) {
+                    managerSchedules = data.schedules || [];
                 }
-            }
-            
-            var confirmMsg = mgr ? 
-                '매니저를 "' + mgr + '"님으로 배정하시겠습니까?\n\n고객: ' + bookingName :
-                '매니저 배정을 해제하시겠습니까?\n\n고객: ' + bookingName;
-            
-            showConfirm(confirmMsg, function(result) {
-                if (!result) {
-                    console.log('❌ 매니저 배정 취소 - select를 원래 값으로 복원');
-                    // 취소 시: select만 원래 값으로 복원 (렌더링 안 함!)
-                    selectElement.value = oldManager;
-                    return;
-                }
-                
-                console.log('✅ 관리자 변경 진행:', id, mgr);
-                for (var i = 0; i < bookings.length; i++) {
-                    if (bookings[i].id === id) {
-                        bookings[i].manager = mgr;
-                        bookings[i].assignmentSent = false;
-                        bookings[i].assignmentAccepted = false;
-                        localStorage.setItem('booking:' + id, JSON.stringify(bookings[i]));
-                        
-                        // data-current-manager 업데이트
-                        selectElement.setAttribute('data-current-manager', mgr);
-                        
-                        // 해시 강제 리셋 (다시 렌더링되도록)
-                        lastBookingsHash = '';
-                        
-                        alert('✅ 매니저가 배정되었습니다!');
-                        renderNewBooks(); // 신규예약 섹션 다시 렌더링
-                        renderBooks(); // 예약관리 섹션 다시 렌더링
-                        break;
-                    }
-                }
-            });
-        }
-
-        function updateManager(id, mgr) {
-            console.log('관리자 변경 시도:', id, mgr);
-            
-            var bookingName = '';
-            for (var i = 0; i < bookings.length; i++) {
-                if (bookings[i].id === id) {
-                    bookingName = bookings[i].name;
-                    break;
-                }
-            }
-            
-            var confirmMsg = mgr ? 
-                '매니저를 "' + mgr + '"님으로 배정하시겠습니까?\n\n고객: ' + bookingName :
-                '매니저 배정을 해제하시겠습니까?\n\n고객: ' + bookingName;
-            
-            showConfirm(confirmMsg, function(result) {
-                if (!result) {
-                    console.log('❌ 매니저 배정 취소');
-                    // 해시 강제 리셋 (다시 렌더링되도록)
-                    lastBookingsHash = '';
-                    renderNewBooks(); // 신규예약 섹션 다시 렌더링
-                    renderBooks(); // 예약관리 섹션 다시 렌더링
-                    return;
-                }
-                
-                console.log('✅ 관리자 변경 진행:', id, mgr);
-                for (var i = 0; i < bookings.length; i++) {
-                    if (bookings[i].id === id) {
-                        bookings[i].manager = mgr;
-                        bookings[i].assignmentSent = false;
-                        bookings[i].assignmentAccepted = false;
-                        localStorage.setItem('booking:' + id, JSON.stringify(bookings[i]));
-                        
-                        // 해시 강제 리셋 (다시 렌더링되도록)
-                        lastBookingsHash = '';
-                        
-                        alert('✅ 매니저가 배정되었습니다!');
-                        renderNewBooks(); // 신규예약 섹션 다시 렌더링
-                        renderBooks(); // 예약관리 섹션 다시 렌더링
-                        break;
-                    }
-                }
-            });
-        }
-
-        function sendAssign(id) {
-            console.log('배정 전송 시도:', id);
-            var booking = null;
-            for (var i = 0; i < bookings.length; i++) {
-                if (bookings[i].id === id) {
-                    booking = bookings[i];
-                    break;
-                }
-            }
-            if (!booking || !booking.manager || booking.manager === '미배정') {
-                alert('먼저 관리자를 배정해주세요!');
-                return;
-            }
-
-            var confirmMsg = '일정을 전송하시겠습니까?\n\n매니저: ' + booking.manager + '\n고객: ' + booking.name + '\n날짜: ' + booking.serviceDate;
-            
-            showConfirm(confirmMsg, function(result) {
-                if (!result) {
-                    console.log('❌ 배정 전송 취소');
-                    return;
-                }
-                
-                console.log('✅ 배정 전송 진행');
-                booking.assignmentSent = true;
-                booking.assignmentSentTime = new Date().toISOString();
-                booking.status = 'confirmed'; // 예약확정 상태로 변경
-                localStorage.setItem('booking:' + id, JSON.stringify(booking));
-                
-                // 해시 강제 리셋 (다시 렌더링되도록)
-                lastBookingsHash = '';
-                
-                alert('✅ ' + booking.manager + '님에게 일정이 전송되었습니다!\n신규예약 → 예약관리로 이동됩니다.');
-                
-                // 신규예약과 예약관리 모두 다시 렌더링
-                renderNewBooks();
-                renderBooks();
-            });
-        }
-
-        function changeStatus(id, newStatus) {
-            console.log('🔴 changeStatus 호출:', id, newStatus);
-            var statusNames = { 'received': '예약접수', 'confirmed': '예약확정', 'started': '작업시작', 'completed': '작업완료', 'paid': '입금완료' };
-            
-            showConfirm('상태를 "' + statusNames[newStatus] + '"로 변경하시겠습니까?', function(result) {
-                console.log('Confirm 결과:', result);
-                
-                if (!result) {
-                    console.log('상태 변경 취소됨');
-                    return;
-                }
-                
-                console.log('✅ 상태 변경 진행 중...');
-                for (var i = 0; i < bookings.length; i++) {
-                    if (bookings[i].id === id) {
-                        bookings[i].status = newStatus;
-                        bookings[i].statusChangedBy = '관리자';
-                        bookings[i].statusChangedTime = new Date().toISOString();
-                        localStorage.setItem('booking:' + id, JSON.stringify(bookings[i]));
-                        console.log('✅ 상태 변경 완료:', bookings[i].name, '->', newStatus);
-                        loadBooks();
-                        alert('✅ 상태가 "' + statusNames[newStatus] + '"로 변경되었습니다!');
-                        break;
-                    }
-                }
-            });
-        }
-
-        function deleteBooking(id, name) {
-            console.log('🔴 deleteBooking 호출:', id, name);
-            showConfirm('정말로 "' + name + '"님의 예약을 삭제하시겠습니까?', function(result) {
-                console.log('Confirm 결과:', result);
-                
-                if (!result) {
-                    console.log('예약 삭제 취소됨');
-                    return;
-                }
-                
-                console.log('예약 삭제 진행 중...');
-                localStorage.removeItem('booking:' + id);
-                loadBooks();
-                alert('✅ 예약이 삭제되었습니다!');
-                console.log('✅ 예약 삭제 완료');
-            });
-        }
-
-        function editBooking(booking) {
-            console.log('✏️ 예약 수정:', booking.name);
-            
-            var newName = prompt('이름:', booking.name);
-            if (newName === null) return;
-            
-            var newPhone = prompt('전화번호:', booking.phone);
-            if (newPhone === null) return;
-            
-            var newAddress = prompt('주소:', booking.address);
-            if (newAddress === null) return;
-            
-            var newServiceDate = prompt('서비스 날짜 (YYYY-MM-DD):', booking.serviceDate);
-            if (newServiceDate === null) return;
-            
-            var confirmMsg = '예약 정보를 수정하시겠습니까?\n\n';
-            confirmMsg += '이름: ' + booking.name + ' → ' + newName + '\n';
-            confirmMsg += '전화번호: ' + booking.phone + ' → ' + newPhone + '\n';
-            confirmMsg += '주소: ' + booking.address + ' → ' + newAddress + '\n';
-            confirmMsg += '날짜: ' + booking.serviceDate + ' → ' + newServiceDate;
-            
-            showConfirm(confirmMsg, function(result) {
-                if (!result) {
-                    console.log('❌ 예약 수정 취소');
-                    return;
-                }
-                
-                console.log('✅ 예약 수정 진행');
-                
-                booking.name = newName;
-                booking.phone = newPhone;
-                booking.address = newAddress;
-                booking.serviceDate = newServiceDate;
-                booking.updatedAt = new Date().toISOString();
-                
-                localStorage.setItem('booking:' + booking.id, JSON.stringify(booking));
-                
-                console.log('✅ 예약 수정 완료');
-                alert('✅ 예약이 수정되었습니다!');
-                loadBooks();
-            });
-        }
-
-        // 재정 정보 편집 함수들
-        function editField(bookingId, field, currentValue) {
-            var fieldNames = {
-                'revenue': '총매출',
-                'managerPay': '매니저페이',
-                'unpaid': '미수금'
-            };
-            
-            var newValue = prompt(fieldNames[field] + ' (원):', currentValue);
-            if (newValue === null) return;
-            
-            newValue = parseInt(newValue) || 0;
-            
-            showConfirm(fieldNames[field] + '을(를) ' + newValue.toLocaleString() + '원으로 변경하시겠습니까?', function(result) {
-                if (!result) return;
-                
-                var booking = null;
-                for (var i = 0; i < bookings.length; i++) {
-                    if (bookings[i].id === bookingId) {
-                        booking = bookings[i];
-                        break;
-                    }
-                }
-                
-                if (booking) {
-                    booking[field] = newValue;
-                    localStorage.setItem('booking:' + bookingId, JSON.stringify(booking));
-                    alert('✅ ' + fieldNames[field] + '이(가) 변경되었습니다!');
-                    loadBooks();
-                }
-            });
-        }
-        
-        function editPaymentMethod(bookingId, currentMethod) {
-            var methods = ['현금', '카드', '계좌이체', '미지정'];
-            var choice = prompt('결제방법을 선택하세요:\n1. 현금\n2. 카드\n3. 계좌이체\n4. 미지정\n\n현재: ' + (currentMethod || '미지정'));
-            
-            if (choice === null) return;
-            
-            var methodIndex = parseInt(choice) - 1;
-            if (methodIndex < 0 || methodIndex >= methods.length) {
-                alert('잘못된 선택입니다!');
-                return;
-            }
-            
-            var newMethod = methods[methodIndex];
-            
-            showConfirm('결제방법을 "' + newMethod + '"(으)로 변경하시겠습니까?', function(result) {
-                if (!result) return;
-                
-                var booking = null;
-                for (var i = 0; i < bookings.length; i++) {
-                    if (bookings[i].id === bookingId) {
-                        booking = bookings[i];
-                        break;
-                    }
-                }
-                
-                if (booking) {
-                    booking.paymentMethod = newMethod === '미지정' ? '' : newMethod;
-                    localStorage.setItem('booking:' + bookingId, JSON.stringify(booking));
-                    alert('✅ 결제방법이 변경되었습니다!');
-                    loadBooks();
-                }
-            });
-        }
-        
-        function editDepositDate(bookingId, currentDate) {
-            var newDate = prompt('입금일 (YYYY-MM-DD):', currentDate);
-            if (newDate === null) return;
-            
-            showConfirm('입금일을 "' + newDate + '"(으)로 변경하시겠습니까?', function(result) {
-                if (!result) return;
-                
-                var booking = null;
-                for (var i = 0; i < bookings.length; i++) {
-                    if (bookings[i].id === bookingId) {
-                        booking = bookings[i];
-                        break;
-                    }
-                }
-                
-                if (booking) {
-                    booking.depositDate = newDate;
-                    localStorage.setItem('booking:' + bookingId, JSON.stringify(booking));
-                    alert('✅ 입금일이 변경되었습니다!');
-                    loadBooks();
-                }
-            });
-        }
-        
-        function editCategory(bookingId, currentCategory) {
-            var categories = ['개인', '법인'];
-            var choice = prompt('구분을 선택하세요:\n1. 개인\n2. 법인\n\n현재: ' + (currentCategory || '개인'));
-            
-            if (choice === null) return;
-            
-            var categoryIndex = parseInt(choice) - 1;
-            if (categoryIndex < 0 || categoryIndex >= categories.length) {
-                alert('잘못된 선택입니다!');
-                return;
-            }
-            
-            var newCategory = categories[categoryIndex];
-            
-            showConfirm('구분을 "' + newCategory + '"(으)로 변경하시겠습니까?', function(result) {
-                if (!result) return;
-                
-                var booking = null;
-                for (var i = 0; i < bookings.length; i++) {
-                    if (bookings[i].id === bookingId) {
-                        booking = bookings[i];
-                        break;
-                    }
-                }
-                
-                if (booking) {
-                    booking.category = newCategory;
-                    localStorage.setItem('booking:' + bookingId, JSON.stringify(booking));
-                    alert('✅ 구분이 변경되었습니다!');
-                    loadBooks();
-                }
-            });
-        }
-        
-        function editFinanceRecord(booking) {
-            console.log('✏️ 재정 정보 일괄 수정:', booking.name);
-            
-            var newRevenue = prompt('총매출 (원):', booking.revenue || getPrice(booking.size || '', booking.service || ''));
-            if (newRevenue === null) return;
-            newRevenue = parseInt(newRevenue) || 0;
-            
-            var newManagerPay = prompt('매니저페이 (원):', booking.managerPay || 0);
-            if (newManagerPay === null) return;
-            newManagerPay = parseInt(newManagerPay) || 0;
-            
-            var newPaymentMethod = prompt('결제방법 (현금/카드/계좌이체):', booking.paymentMethod || '');
-            if (newPaymentMethod === null) return;
-            
-            var newDepositDate = prompt('입금일 (YYYY-MM-DD):', booking.depositDate || '');
-            if (newDepositDate === null) return;
-            
-            var newUnpaid = prompt('미수금 (원):', booking.unpaid || 0);
-            if (newUnpaid === null) return;
-            newUnpaid = parseInt(newUnpaid) || 0;
-            
-            var newCategory = prompt('구분 (개인/법인):', booking.category || '개인');
-            if (newCategory === null) return;
-            
-            var profit = newRevenue - newManagerPay;
-            
-            var confirmMsg = '재정 정보를 수정하시겠습니까?\n\n';
-            confirmMsg += '총매출: ' + newRevenue.toLocaleString() + '원\n';
-            confirmMsg += '매니저페이: ' + newManagerPay.toLocaleString() + '원\n';
-            confirmMsg += '순이익: ' + profit.toLocaleString() + '원\n';
-            confirmMsg += '결제방법: ' + newPaymentMethod + '\n';
-            confirmMsg += '입금일: ' + newDepositDate + '\n';
-            confirmMsg += '미수금: ' + newUnpaid.toLocaleString() + '원\n';
-            confirmMsg += '구분: ' + newCategory;
-            
-            showConfirm(confirmMsg, function(result) {
-                if (!result) {
-                    console.log('❌ 재정 정보 수정 취소');
-                    return;
-                }
-                
-                console.log('✅ 재정 정보 수정 진행');
-                
-                booking.revenue = newRevenue;
-                booking.managerPay = newManagerPay;
-                booking.paymentMethod = newPaymentMethod;
-                booking.depositDate = newDepositDate;
-                booking.unpaid = newUnpaid;
-                booking.category = newCategory;
-                booking.updatedAt = new Date().toISOString();
-                
-                localStorage.setItem('booking:' + booking.id, JSON.stringify(booking));
-                
-                console.log('✅ 재정 정보 수정 완료');
-                alert('✅ 재정 정보가 수정되었습니다!');
-                loadBooks();
-            });
-        }
-
-        function updateStats() {
-            document.getElementById('totalCount').textContent = bookings.length;
-            // 신규예약: status가 received이면서 assignmentSent가 아닌 것만
-            document.getElementById('receivedCount').textContent = bookings.filter(function(b) { 
-                return b.status === 'received' && b.assignmentSent !== true; 
-            }).length;
-            document.getElementById('confirmedCount').textContent = bookings.filter(function(b) { return b.status === 'confirmed'; }).length;
-            document.getElementById('startedCount').textContent = bookings.filter(function(b) { return b.status === 'started'; }).length;
-            document.getElementById('completedCount').textContent = bookings.filter(function(b) { return b.status === 'completed'; }).length;
-            document.getElementById('paidCount').textContent = bookings.filter(function(b) { return b.status === 'paid'; }).length;
-        }
-
-        function showBigCalendar() {
-            console.log('📅 큰 캘린더 열기');
-            document.getElementById('bigCalendarModal').classList.add('show');
-            bigCalYear = new Date().getFullYear();
-            bigCalMonth = new Date().getMonth();
-            renderBigCalendar();
-        }
-
-        function hideBigCalendar() {
-            document.getElementById('bigCalendarModal').classList.remove('show');
-        }
-
-        function prevBigMonth() {
-            bigCalMonth--;
-            if (bigCalMonth < 0) {
-                bigCalMonth = 11;
-                bigCalYear--;
-            }
-            renderBigCalendar();
-        }
-
-        function nextBigMonth() {
-            bigCalMonth++;
-            if (bigCalMonth > 11) {
-                bigCalMonth = 0;
-                bigCalYear++;
-            }
-            renderBigCalendar();
-        }
-
-        function renderBigCalendar() {
-            var monthNames = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
-            document.getElementById('bigCalendarTitle').textContent = bigCalYear + '년 ' + monthNames[bigCalMonth];
-
-            var firstDay = new Date(bigCalYear, bigCalMonth, 1).getDay();
-            var daysInMonth = new Date(bigCalYear, bigCalMonth + 1, 0).getDate();
-
-            var container = document.getElementById('bigCalendarDays');
-            container.innerHTML = '';
-
-            for (var i = 0; i < firstDay; i++) {
-                var empty = document.createElement('div');
-                empty.className = 'calendar-big-day empty';
-                container.appendChild(empty);
-            }
-
-            for (var day = 1; day <= daysInMonth; day++) {
-                var dateStr = bigCalYear + '-' + String(bigCalMonth + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
-                var dayBookings = bookings.filter(function(b) { return b.serviceDate === dateStr; });
-
-                var dayDiv = document.createElement('div');
-                dayDiv.className = 'calendar-big-day';
-                
-                var numDiv = document.createElement('div');
-                numDiv.className = 'calendar-big-day-number';
-                numDiv.textContent = day;
-                dayDiv.appendChild(numDiv);
-
-                if (dayBookings.length > 0) {
-                    dayDiv.classList.add('has-bookings');
-                    var countDiv = document.createElement('div');
-                    countDiv.className = 'calendar-booking-count';
-                    countDiv.textContent = dayBookings.length + '건';
-                    dayDiv.appendChild(countDiv);
-
-                    dayDiv.onclick = (function(date, bks) {
-                        return function() {
-                            showDayBookings(date, bks);
-                        };
-                    })(dateStr, dayBookings);
-                }
-
-                container.appendChild(dayDiv);
+            } catch (error) {
+                // Google Apps Script 연결 전에는 조용히 무시
+                managerSchedules = [];
             }
         }
 
-        function exportExcel() {
-            console.log('📊 엑셀 다운로드 시작');
-            if (bookings.length === 0) { 
-                alert('다운로드할 데이터가 없습니다.'); 
-                return; 
-            }
-            
-            var csv = '날짜(####),이름/전화/주소,평형(수치판),서비스(분류),관리자(담당),상태(결제수단),매출(VAT별도),매니저비용(변동),순이익(공헌이익)\n';
-            
-            var totalRevenue = 0;
-            var totalCost = 0;
-            var totalProfit = 0;
-            var completedCount = 0;
-            
-            for (var i = 0; i < bookings.length; i++) {
-                var b = bookings[i];
-                var sizeParts = b.service.split(' - ');
-                var size = '';
-                var serviceType = '';
-                
-                if (sizeParts.length >= 2) {
-                    size = sizeParts[0];
-                    serviceType = sizeParts[1];
-                } else {
-                    size = '';
-                    serviceType = b.service;
-                }
-                
-                var revenue = getPrice(size, serviceType);
-                
-                var cost = 0;
-                var profit = 0;
-                
-                if (b.status === 'completed' || b.status === 'paid') {
-                    cost = MANAGER_COST;
-                    profit = revenue - cost;
-                    totalRevenue += revenue;
-                    totalCost += cost;
-                    totalProfit += profit;
-                    completedCount++;
-                }
-                
-                var statusText = b.status === 'received' ? '예약접수' : 
-                                b.status === 'confirmed' ? '예약확정' :
-                                b.status === 'started' ? '작업시작' :
-                                b.status === 'completed' ? '작업완료' :
-                                b.status === 'paid' ? '입금완료' : b.status;
-                
-                var contact = b.name + ' / ' + b.phone + ' / ' + b.address;
-                
-                var extractedSize = extractSize(size, serviceType);
-                if (extractedSize === '-') {
-                    extractedSize = extractSize(b.service, '');
-                }
-                
-                csv += '"' + (b.serviceDate || '미지정') + '","' + contact + '","' + 
-                       extractedSize + '","' + extractService(serviceType) + '","' + 
-                       (b.manager || '미배정') + '","' + statusText + '","' + 
-                       revenue + '","' + cost + '","' + profit + '"\n';
-            }
-            
-            csv += '\n"총 합계(' + completedCount + '건)","","","","","","' + totalRevenue + '","' + totalCost + '","' + totalProfit + '"\n';
-            
-            var BOM = "\uFEFF";
-            var blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
-            var link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = '깨끗한집_재정관리_' + new Date().toISOString().split('T')[0] + '.csv';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            console.log('✅ 엑셀 다운로드 완료');
-            console.log('  총 매출:', totalRevenue.toLocaleString());
-            console.log('  총 비용:', totalCost.toLocaleString());
-            console.log('  총 순이익:', totalProfit.toLocaleString());
-        }
-
-        // ===== 아파트 가격 관리 =====
-        let apartmentPrices = [];
-        let editingApartmentId = null;
-
+        // ===== 아파트 가격 로드 =====
         async function loadApartmentPrices() {
             try {
                 const response = await fetch(`${SHEET_URL}?action=getApartmentPrices`);
                 const data = await response.json();
                 if (data.success) {
                     apartmentPrices = data.apartments || [];
-                    renderApartmentPrices();
                 }
             } catch (error) {
-                console.error('아파트 가격 로딩 실패:', error);
+                // Google Apps Script 연결 전에는 조용히 무시
+                apartmentPrices = [];
             }
         }
 
-        function renderApartmentPrices() {
-            const container = document.getElementById('apartmentPriceList');
+        // ===== 키워드 매칭으로 아파트 찾기 =====
+        function findApartmentByKeyword(inputText) {
+            if (!inputText) return null;
             
-            if (apartmentPrices.length === 0) {
-                container.innerHTML = '<p style="color: #888; text-align: center; padding: 40px;">등록된 아파트 단지가 없습니다. 새 아파트 단지를 추가해주세요.</p>';
+            const searchText = inputText.toLowerCase().trim();
+            
+            for (let apt of apartmentPrices) {
+                if (!apt.keywords) continue;
+                
+                const keywords = apt.keywords.toLowerCase().split(',').map(k => k.trim());
+                
+                for (let keyword of keywords) {
+                    if (searchText.includes(keyword) || keyword.includes(searchText)) {
+                        return apt;
+                    }
+                }
+            }
+            
+            return null;
+        }
+
+        // ===== 가격 가져오기 (아파트별 또는 기본) =====
+        function getPrice(size, service) {
+            const aptName = document.getElementById('aptName').value.trim();
+            const matchedApt = findApartmentByKeyword(aptName);
+            
+            if (matchedApt) {
+                // 매칭된 아파트의 가격 사용
+                const sizeNum = size.match(/\d+/)[0]; // '30평형(20평형 포함)' -> '30'
+                const priceKey = `price${sizeNum}${service === '난방' ? 'heating' : service === '수도' ? 'water' : 'both'}`;
+                return matchedApt[priceKey] || defaultPrices[size][service];
+            }
+            
+            // 매칭 안되면 기본 가격 사용
+            return defaultPrices[size][service];
+        }
+
+        // ===== 캘린더 =====
+        function openCalendar() {
+            document.getElementById('calendarModal').classList.add('show');
+            renderCalendar();
+        }
+
+        function closeCalendar() {
+            document.getElementById('calendarModal').classList.remove('show');
+        }
+
+        function changeMonth(delta) {
+            currentDate.setMonth(currentDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            document.getElementById('calendarTitle').textContent = `${year}년 ${month + 1}월`;
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startingDayOfWeek = firstDay.getDay();
+            const monthLength = lastDay.getDate();
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let html = '';
+            
+            for (let i = 0; i < startingDayOfWeek; i++) {
+                html += '<div class="calendar-day empty"></div>';
+            }
+            
+            for (let day = 1; day <= monthLength; day++) {
+                const currentDateObj = new Date(year, month, day);
+                currentDateObj.setHours(0, 0, 0, 0);
+                
+                const isToday = currentDateObj.getTime() === today.getTime();
+                const isPast = currentDateObj < today;
+                const isSelected = selectedDate && selectedDate.getTime() === currentDateObj.getTime();
+                
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                
+                let classes = ['calendar-day'];
+                if (isToday) classes.push('today');
+                if (isPast) classes.push('disabled');
+                if (isSelected) classes.push('selected');
+                
+                let slotsText = '';
+                if (!isPast) {
+                    slotsText = `<div class="slots-indicator">예약가능</div>`;
+                }
+                
+                html += `<div class="${classes.join(' ')}" data-date="${dateStr}" onclick="selectDate('${dateStr}')">${day}${slotsText}</div>`;
+            }
+            
+            document.getElementById('calendarDays').innerHTML = html;
+        }
+
+        function getAvailableSlots(dateStr) {
+            // 매니저 스케줄과 무관하게 항상 예약 가능
+            return 10; // 충분한 자리 표시
+        }
+
+        function selectDate(dateStr) {
+            const dateObj = new Date(dateStr + 'T00:00:00');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (dateObj < today) return;
+            
+            // 매니저 스케줄과 무관하게 모든 날짜 선택 가능
+            selectedDate = dateObj;
+            const displayDate = `${dateObj.getFullYear()}년 ${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일`;
+            
+            document.getElementById('dateDisplay').textContent = displayDate;
+            document.getElementById('dateDisplay').classList.remove('date-selector-placeholder');
+            
+            closeCalendar();
+        }
+
+        // ===== 서비스 옵션 업데이트 =====
+        function updateServiceOptions() {
+            const container = document.getElementById('serviceOptions');
+            if (!selectedSize) {
+                container.innerHTML = '<p style="color: #888; font-size: 14px; margin-bottom: 10px;">먼저 아파트 평수를 선택해주세요</p>';
                 return;
             }
 
-            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">';
+            const serviceTypes = ['난방', '수도', '난방+수도'];
+            let html = '';
             
-            apartmentPrices.forEach(apt => {
+            serviceTypes.forEach(service => {
+                const price = getPrice(selectedSize, service);
                 html += `
-                    <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; border-left: 4px solid #00AEEF;">
-                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
-                            <h3 style="font-size: 18px; font-weight: 800; color: #2c3e50; margin: 0;">${apt.name}</h3>
-                            <div>
-                                <button class="btn btn-info" style="padding: 8px 12px; font-size: 12px; margin-right: 5px;" onclick="editApartment('${apt.id}')">수정</button>
-                                <button class="btn btn-danger" style="padding: 8px 12px; font-size: 12px;" onclick="deleteApartment('${apt.id}', '${apt.name}')">삭제</button>
-                            </div>
+                    <div class="service-card" data-value="${service}">
+                        <div class="service-content">
+                            <span class="service-name">${service}</span>
+                            <span style="font-size: 14px; color: #00AEEF; font-weight: 600;">${price.toLocaleString()}원</span>
                         </div>
-                        <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px; font-size: 13px;">
-                            <strong style="color: #555;">30평형:</strong>
-                            <div>난방 ${apt.price30heating?.toLocaleString() || '0'}원 / 수도 ${apt.price30water?.toLocaleString() || '0'}원 / 난방+수도 ${apt.price30both?.toLocaleString() || '0'}원</div>
-                            
-                            <strong style="color: #555;">40평형:</strong>
-                            <div>난방 ${apt.price40heating?.toLocaleString() || '0'}원 / 수도 ${apt.price40water?.toLocaleString() || '0'}원 / 난방+수도 ${apt.price40both?.toLocaleString() || '0'}원</div>
-                            
-                            <strong style="color: #555;">50평형:</strong>
-                            <div>난방 ${apt.price50heating?.toLocaleString() || '0'}원 / 수도 ${apt.price50water?.toLocaleString() || '0'}원 / 난방+수도 ${apt.price50both?.toLocaleString() || '0'}원</div>
-                            
-                            <strong style="color: #555;">60평형:</strong>
-                            <div>난방 ${apt.price60heating?.toLocaleString() || '0'}원 / 수도 ${apt.price60water?.toLocaleString() || '0'}원 / 난방+수도 ${apt.price60both?.toLocaleString() || '0'}원</div>
-                        </div>
+                        <span class="checkmark"></span>
                     </div>
                 `;
             });
             
-            html += '</div>';
             container.innerHTML = html;
+            selectedService = null;
         }
 
-        function showAddApartmentModal() {
-            editingApartmentId = null;
-            document.getElementById('apartmentModalTitle').textContent = '🏘️ 아파트 단지 추가';
-            document.getElementById('apartmentName').value = '';
-            document.getElementById('price30heating').value = '120000';
-            document.getElementById('price30water').value = '120000';
-            document.getElementById('price30both').value = '150000';
-            document.getElementById('price40heating').value = '140000';
-            document.getElementById('price40water').value = '140000';
-            document.getElementById('price40both').value = '180000';
-            document.getElementById('price50heating').value = '160000';
-            document.getElementById('price50water').value = '160000';
-            document.getElementById('price50both').value = '200000';
-            document.getElementById('price60heating').value = '180000';
-            document.getElementById('price60water').value = '180000';
-            document.getElementById('price60both').value = '220000';
-            document.getElementById('apartmentModal').classList.add('show');
-        }
-
-        function hideApartmentModal() {
-            document.getElementById('apartmentModal').classList.remove('show');
-            editingApartmentId = null;
-        }
-
-        function editApartment(aptId) {
-            const apt = apartmentPrices.find(a => a.id === aptId);
-            if (!apt) return;
-
-            editingApartmentId = aptId;
-            document.getElementById('apartmentModalTitle').textContent = '🏘️ 아파트 단지 수정';
-            document.getElementById('apartmentName').value = apt.name;
-            document.getElementById('price30heating').value = apt.price30heating || 120000;
-            document.getElementById('price30water').value = apt.price30water || 120000;
-            document.getElementById('price30both').value = apt.price30both || 150000;
-            document.getElementById('price40heating').value = apt.price40heating || 140000;
-            document.getElementById('price40water').value = apt.price40water || 140000;
-            document.getElementById('price40both').value = apt.price40both || 180000;
-            document.getElementById('price50heating').value = apt.price50heating || 160000;
-            document.getElementById('price50water').value = apt.price50water || 160000;
-            document.getElementById('price50both').value = apt.price50both || 200000;
-            document.getElementById('price60heating').value = apt.price60heating || 180000;
-            document.getElementById('price60water').value = apt.price60water || 180000;
-            document.getElementById('price60both').value = apt.price60both || 220000;
-            document.getElementById('apartmentModal').classList.add('show');
-        }
-
-        async function saveApartment() {
-            const name = document.getElementById('apartmentName').value.trim();
-            if (!name) {
-                alert('아파트 단지명을 입력해주세요.');
+        // ===== 가격 계산 =====
+        function updatePrice() {
+            const summary = document.getElementById('priceSummary');
+            
+            if (!selectedSize || !selectedService || !selectedPayment) {
+                summary.style.display = 'none';
                 return;
             }
 
-            const apartmentData = {
-                action: editingApartmentId ? 'updateApartment' : 'addApartment',
-                id: editingApartmentId || 'apt_' + Date.now(),
+            const basePrice = getPrice(selectedSize, selectedService);
+            const paymentCard = document.querySelector(`#paymentOptions .service-card[data-value="${selectedPayment}"]`);
+            const hasVAT = paymentCard && paymentCard.dataset.vat === 'true';
+            
+            const vatAmount = hasVAT ? Math.round(basePrice * 0.1) : 0;
+            const totalPrice = basePrice + vatAmount;
+            
+            document.getElementById('basePrice').textContent = basePrice.toLocaleString() + '원';
+            document.getElementById('vatPrice').textContent = vatAmount.toLocaleString() + '원';
+            document.getElementById('totalPrice').textContent = totalPrice.toLocaleString() + '원';
+            
+            document.getElementById('vatRow').style.display = hasVAT ? 'flex' : 'none';
+            summary.style.display = 'block';
+        }
+
+        // ===== 유효성 검사 및 확인 =====
+        function validateAndShowConfirm() {
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const region = document.getElementById('region').value.trim();
+            const aptName = document.getElementById('aptName').value.trim();
+            const dong = document.getElementById('dong').value.trim();
+            const ho = document.getElementById('ho').value.trim();
+
+            if (!name) return alert('이름을 입력해주세요.');
+            if (!phone) return alert('전화번호를 입력해주세요.');
+            if (phone.length < 12) return alert('전화번호를 정확히 입력해주세요.');
+            if (!region) return alert('지역을 입력해주세요.');
+            if (!aptName) return alert('아파트 이름을 입력해주세요.');
+            if (!dong) return alert('동을 입력해주세요.');
+            if (!ho) return alert('호수를 입력해주세요.');
+            if (!selectedDate) return alert('서비스 날짜를 선택해주세요.');
+            if (selectedTimeSlots.length === 0) return alert('가능한 시간대를 선택해주세요.');
+            if (!selectedSize) return alert('아파트 평수를 선택해주세요.');
+            if (!selectedService) return alert('서비스 종류를 선택해주세요.');
+            if (!selectedCategory) return alert('구분(법인/개인)을 선택해주세요.');
+            if (!selectedPayment) return alert('결제 방법을 선택해주세요.');
+
+            showConfirmModal();
+        }
+
+        function showConfirmModal() {
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const region = document.getElementById('region').value.trim();
+            const aptName = document.getElementById('aptName').value.trim();
+            const dong = document.getElementById('dong').value.trim();
+            const ho = document.getElementById('ho').value.trim();
+            const address = `${region} ${aptName} ${dong} ${ho}`;
+            
+            const displayDate = `${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일`;
+            
+            const basePrice = getPrice(selectedSize, selectedService);
+            const paymentCard = document.querySelector(`#paymentOptions .service-card[data-value="${selectedPayment}"]`);
+            const hasVAT = paymentCard && paymentCard.dataset.vat === 'true';
+            const vatAmount = hasVAT ? Math.round(basePrice * 0.1) : 0;
+            const totalPrice = basePrice + vatAmount;
+
+            let html = `
+                <div class="confirm-row"><div class="confirm-label">이름</div><div class="confirm-value">${name}</div></div>
+                <div class="confirm-row"><div class="confirm-label">전화번호</div><div class="confirm-value">${phone}</div></div>
+                <div class="confirm-row"><div class="confirm-label">주소</div><div class="confirm-value">${address}</div></div>
+                <div class="confirm-row"><div class="confirm-label">희망 날짜</div><div class="confirm-value">${displayDate}</div></div>
+                <div class="confirm-row"><div class="confirm-label">가능 시간</div><div class="confirm-value">${selectedTimeSlots.join(', ')}</div></div>
+                <div class="confirm-row"><div class="confirm-label">평수</div><div class="confirm-value">${selectedSize}</div></div>
+                <div class="confirm-row"><div class="confirm-label">서비스</div><div class="confirm-value">${selectedService}</div></div>
+                <div class="confirm-row"><div class="confirm-label">구분</div><div class="confirm-value">${selectedCategory}</div></div>
+                <div class="confirm-row"><div class="confirm-label">결제방법</div><div class="confirm-value">${selectedPayment}</div></div>
+                <div class="confirm-row"><div class="confirm-label">서비스 금액</div><div class="confirm-value">${basePrice.toLocaleString()}원</div></div>
+            `;
+            
+            if (hasVAT) {
+                html += `<div class="confirm-row"><div class="confirm-label">부가세(10%)</div><div class="confirm-value">${vatAmount.toLocaleString()}원</div></div>`;
+            }
+            
+            html += `<div class="confirm-row"><div class="confirm-label" style="color: #00AEEF;">총 결제금액</div><div class="confirm-value" style="color: #00AEEF; font-size: 22px;">${totalPrice.toLocaleString()}원</div></div>`;
+
+            document.getElementById('confirmInfo').innerHTML = html;
+            document.getElementById('confirmModal').classList.add('show');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('show');
+        }
+
+        // ===== 예약 제출 =====
+        async function confirmBooking() {
+            closeConfirmModal();
+            document.getElementById('loadingOverlay').classList.add('show');
+
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const region = document.getElementById('region').value.trim();
+            const aptName = document.getElementById('aptName').value.trim();
+            const dong = document.getElementById('dong').value.trim();
+            const ho = document.getElementById('ho').value.trim();
+            const address = `${region} ${aptName} ${dong} ${ho}`;
+            
+            const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+            
+            const basePrice = getPrice(selectedSize, selectedService);
+            const paymentCard = document.querySelector(`#paymentOptions .service-card[data-value="${selectedPayment}"]`);
+            const hasVAT = paymentCard && paymentCard.dataset.vat === 'true';
+            const vatAmount = hasVAT ? Math.round(basePrice * 0.1) : 0;
+            const totalPrice = basePrice + vatAmount;
+
+            const bookingData = {
+                action: 'addBooking',
                 name: name,
-                price30heating: parseInt(document.getElementById('price30heating').value) || 120000,
-                price30water: parseInt(document.getElementById('price30water').value) || 120000,
-                price30both: parseInt(document.getElementById('price30both').value) || 150000,
-                price40heating: parseInt(document.getElementById('price40heating').value) || 140000,
-                price40water: parseInt(document.getElementById('price40water').value) || 140000,
-                price40both: parseInt(document.getElementById('price40both').value) || 180000,
-                price50heating: parseInt(document.getElementById('price50heating').value) || 160000,
-                price50water: parseInt(document.getElementById('price50water').value) || 160000,
-                price50both: parseInt(document.getElementById('price50both').value) || 200000,
-                price60heating: parseInt(document.getElementById('price60heating').value) || 180000,
-                price60water: parseInt(document.getElementById('price60water').value) || 180000,
-                price60both: parseInt(document.getElementById('price60both').value) || 220000
+                phone: phone,
+                address: address,
+                date: dateStr,
+                timeSlots: selectedTimeSlots.join(', '),
+                size: selectedSize,
+                service: selectedService,
+                category: selectedCategory,
+                payment: selectedPayment,
+                price: totalPrice
             };
 
             try {
-                await fetch(SHEET_URL, {
+                const response = await fetch(SHEET_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(apartmentData)
+                    body: JSON.stringify(bookingData)
                 });
 
-                alert(editingApartmentId ? '아파트 가격이 수정되었습니다.' : '아파트가 추가되었습니다.');
-                hideApartmentModal();
-                setTimeout(loadApartmentPrices, 1000);
+                setTimeout(() => {
+                    document.getElementById('loadingOverlay').classList.remove('show');
+                    document.getElementById('successMessage').classList.add('show');
+                    
+                    setTimeout(() => {
+                        document.getElementById('successMessage').classList.remove('show');
+                        resetForm();
+                    }, 3000);
+                }, 1500);
+
             } catch (error) {
-                console.error('저장 실패:', error);
-                alert('저장 중 오류가 발생했습니다.');
+                console.error('예약 실패:', error);
+                document.getElementById('loadingOverlay').classList.remove('show');
+                alert('예약 중 오류가 발생했습니다. 다시 시도해주세요.');
             }
         }
 
-        function deleteApartment(aptId, aptName) {
-            if (!confirm(`"${aptName}" 아파트 단지를 삭제하시겠습니까?`)) return;
-
-            const deleteData = {
-                action: 'deleteApartment',
-                id: aptId
-            };
-
-            fetch(SHEET_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(deleteData)
-            }).then(() => {
-                alert('아파트 단지가 삭제되었습니다.');
-                setTimeout(loadApartmentPrices, 1000);
-            }).catch(error => {
-                console.error('삭제 실패:', error);
-                alert('삭제 중 오류가 발생했습니다.');
-            });
+        function resetForm() {
+            document.getElementById('name').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('region').value = '';
+            document.getElementById('aptName').value = '';
+            document.getElementById('dong').value = '';
+            document.getElementById('ho').value = '';
+            document.getElementById('dateDisplay').textContent = '📅 날짜를 선택하세요';
+            document.getElementById('dateDisplay').classList.add('date-selector-placeholder');
+            
+            document.querySelectorAll('.service-card').forEach(card => card.classList.remove('selected'));
+            
+            selectedDate = null;
+            selectedTimeSlots = [];
+            selectedSize = null;
+            selectedService = null;
+            selectedCategory = null;
+            selectedPayment = null;
+            
+            document.getElementById('priceSummary').style.display = 'none';
+            updateServiceOptions();
         }
-
-        window.addEventListener('load', function() {
-            console.log('✅ 페이지 로드 완료');
-            loadMgrs();
-            loadBooks();
-            loadApartmentPrices();
-            setInterval(loadBooks, 500); // 0.5초마다 예약 데이터 갱신
-            setInterval(loadApartmentPrices, 500); // 0.5초마다 아파트 가격 갱신
-            setInterval(loadMgrs, 500); // 0.5초마다 매니저 목록 갱신
-        });
     </script>
 </body>
 </html>
