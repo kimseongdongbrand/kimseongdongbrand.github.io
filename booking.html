@@ -477,12 +477,22 @@
             if (matchedApt) {
                 // 매칭된 아파트의 가격 사용
                 const sizeNum = size.match(/\d+/)[0]; // '30평형(20평형 포함)' -> '30'
-                const priceKey = `price${sizeNum}${service === '난방' ? 'heating' : service === '수도' ? 'water' : 'both'}`;
-                return matchedApt[priceKey] || defaultPrices[size][service];
+                let serviceKey = 'both'; // 기본값
+                if (service === '난방') serviceKey = 'heating';
+                else if (service === '수도') serviceKey = 'water';
+                else if (service === '난방+수도' || service.includes('+')) serviceKey = 'both';
+                
+                const priceKey = `price${sizeNum}${serviceKey}`;
+                const aptPrice = matchedApt[priceKey];
+                
+                // 아파트별 가격이 0이 아니면 사용, 아니면 기본 가격
+                if (aptPrice && aptPrice > 0) {
+                    return aptPrice;
+                }
             }
             
             // 매칭 안되면 기본 가격 사용
-            return defaultPrices[size][service];
+            return defaultPrices[size] ? defaultPrices[size][service] : 0;
         }
 
         // ===== 캘린더 =====
