@@ -215,6 +215,10 @@
                 <input type="text" id="apartmentName" placeholder="예: 송파 헬리오시티">
             </div>
             <div class="form-group">
+                <label>검색 키워드 (쉼표로 구분)</label>
+                <input type="text" id="apartmentKeywords" placeholder="예: 헬리오시티, 헬리오, 송파헬리오">
+            </div>
+            <div class="form-group">
                 <label>30평형 - 난방 (원)</label>
                 <input type="number" id="price30heating" placeholder="120000">
             </div>
@@ -850,56 +854,58 @@
         }
 
         function loadBooks() {
-            console.log('📋 예약 로드 시작');
+            console.log('📋 예약 로드 시작 (Google Sheets API)');
             bookings = [];
-            for (var i = 0; i < localStorage.length; i++) {
-                var key = localStorage.key(i);
-                if (key && key.indexOf('booking:') === 0) {
-                    try {
-                        var booking = JSON.parse(localStorage.getItem(key));
-                        bookings.push(booking);
-                        console.log('  - 로드:', booking.name, '/', booking.status);
-                    } catch (e) {
-                        console.log('  - 에러:', e);
+            
+            fetch(GOOGLE_SCRIPT_URL + '?action=getBookings')
+                .then(function(response) { return response.json(); })
+                .then(function(result) {
+                    console.log('📥 API 응답:', result);
+                    if (result.success && result.bookings) {
+                        bookings = result.bookings;
+                        console.log('✅ 총 ' + bookings.length + '건 로드 완료');
+                        
+                        // 스마트 정렬: 날짜 → 시간대 → 아파트 → 동
+                        bookings.sort(function(a, b) {
+                            // 1순위: 날짜
+                            var dateA = a.serviceDate || '9999-12-31';
+                            var dateB = b.serviceDate || '9999-12-31';
+                            if (dateA !== dateB) {
+                                return dateA.localeCompare(dateB);
+                            }
+                            
+                            // 2순위: 시간대
+                            var timeOrderA = getTimeSlotOrder(a.timeSlots);
+                            var timeOrderB = getTimeSlotOrder(b.timeSlots);
+                            if (timeOrderA !== timeOrderB) {
+                                return timeOrderA - timeOrderB;
+                            }
+                            
+                            // 3순위: 아파트 이름
+                            var aptA = extractApartmentName(a.address);
+                            var aptB = extractApartmentName(b.address);
+                            if (aptA !== aptB) {
+                                return aptA.localeCompare(aptB);
+                            }
+                            
+                            // 4순위: 동 번호
+                            var dongA = extractDongNumber(a.address);
+                            var dongB = extractDongNumber(b.address);
+                            return dongA - dongB;
+                        });
+                        
+                        console.log('✅ 스마트 정렬 완료 (날짜→시간→아파트→동)');
+                        renderNewBooks();
+                        renderBooks();
+                        renderFinance();
+                        updateStats();
+                    } else {
+                        console.log('❌ 예약 로드 실패:', result.message);
                     }
-                }
-            }
-            console.log('총 ' + bookings.length + '건 로드 완료');
-            
-            // 스마트 정렬: 날짜 → 시간대 → 아파트 → 동
-            bookings.sort(function(a, b) {
-                // 1순위: 날짜
-                var dateA = a.serviceDate || '9999-12-31';
-                var dateB = b.serviceDate || '9999-12-31';
-                if (dateA !== dateB) {
-                    return dateA.localeCompare(dateB);
-                }
-                
-                // 2순위: 시간대
-                var timeOrderA = getTimeSlotOrder(a.timeSlots);
-                var timeOrderB = getTimeSlotOrder(b.timeSlots);
-                if (timeOrderA !== timeOrderB) {
-                    return timeOrderA - timeOrderB;
-                }
-                
-                // 3순위: 아파트 이름
-                var aptA = extractApartmentName(a.address);
-                var aptB = extractApartmentName(b.address);
-                if (aptA !== aptB) {
-                    return aptA.localeCompare(aptB);
-                }
-                
-                // 4순위: 동 번호
-                var dongA = extractDongNumber(a.address);
-                var dongB = extractDongNumber(b.address);
-                return dongA - dongB;
-            });
-            
-            console.log('✅ 스마트 정렬 완료 (날짜→시간→아파트→동)');
-            renderNewBooks();
-            renderBooks();
-            renderFinance();
-            updateStats();
+                })
+                .catch(function(error) {
+                    console.log('❌ API 호출 오류:', error);
+                });
         }
         
         // 시간대 순서 추출 (작은 숫자가 먼저)
@@ -2136,7 +2142,10 @@
                 html += `
                     <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; border-left: 4px solid #00AEEF;">
                         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
-                            <h3 style="font-size: 18px; font-weight: 800; color: #2c3e50; margin: 0;">${apt.name}</h3>
+                            <div>
+                                <h3 style="font-size: 18px; font-weight: 800; color: #2c3e50; margin: 0;">${apt.name}</h3>
+                                ${apt.keywords ? `<p style="font-size: 11px; color: #888; margin-top: 5px;">🔍 ${apt.keywords}</p>` : ''}
+                            </div>
                             <div>
                                 <button class="btn btn-info" style="padding: 8px 12px; font-size: 12px; margin-right: 5px;" onclick="editApartment('${apt.id}')">수정</button>
                                 <button class="btn btn-danger" style="padding: 8px 12px; font-size: 12px;" onclick="deleteApartment('${apt.id}', '${apt.name}')">삭제</button>
@@ -2167,6 +2176,7 @@
             editingApartmentId = null;
             document.getElementById('apartmentModalTitle').textContent = '🏘️ 아파트 단지 추가';
             document.getElementById('apartmentName').value = '';
+            document.getElementById('apartmentKeywords').value = '';
             document.getElementById('price30heating').value = '120000';
             document.getElementById('price30water').value = '120000';
             document.getElementById('price30both').value = '150000';
@@ -2194,6 +2204,7 @@
             editingApartmentId = aptId;
             document.getElementById('apartmentModalTitle').textContent = '🏘️ 아파트 단지 수정';
             document.getElementById('apartmentName').value = apt.name;
+            document.getElementById('apartmentKeywords').value = apt.keywords || '';
             document.getElementById('price30heating').value = apt.price30heating || 120000;
             document.getElementById('price30water').value = apt.price30water || 120000;
             document.getElementById('price30both').value = apt.price30both || 150000;
@@ -2220,6 +2231,7 @@
                 action: editingApartmentId ? 'updateApartment' : 'addApartment',
                 id: editingApartmentId || 'apt_' + Date.now(),
                 name: name,
+                keywords: document.getElementById('apartmentKeywords').value.trim(),
                 price30heating: parseInt(document.getElementById('price30heating').value) || 120000,
                 price30water: parseInt(document.getElementById('price30water').value) || 120000,
                 price30both: parseInt(document.getElementById('price30both').value) || 150000,
