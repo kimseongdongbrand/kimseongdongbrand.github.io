@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>(주)홈케어 깨끗한집 - 매니저앱 v3</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, sans-serif; 
+            background: #f5f7fa; 
+            font-size: 20px;
+        }
+        
+        /* 로그인 화면 */
+        .login-container { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #00AEEF 0%, #0088CC 100%); padding: 20px; }
+        .login-box { background: white; border-radius: 20px; padding: 50px 40px; width: 100%; max-width: 480px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .login-logo { text-align: center; margin-bottom: 40px; }
+        .login-logo h1 { font-size: 48px; color: #00AEEF; margin-bottom: 12px; font-weight: 900; }
+        .login-logo p { font-size: 24px; color: #666; font-weight: 600; }
+        .input-group { margin-bottom: 28px; }
+        .input-label { display: block; margin-bottom: 12px; font-weight: 700; font-size: 22px; color: #333; }
+        .input-field { width: 100%; padding: 20px; border: 3px solid #e0e0e0; border-radius: 12px; font-size: 22px; font-weight: 600; }
+        .input-field:focus { outline: none; border-color: #00AEEF; box-shadow: 0 0 0 4px rgba(0, 174, 239, 0.1); }
+        .login-btn { width: 100%; padding: 24px; background: linear-gradient(135deg, #00AEEF 0%, #0088CC 100%); color: white; border: none; border-radius: 12px; font-size: 24px; font-weight: 900; cursor: pointer; margin-top: 20px; }
+        .error-message { color: #e74c3c; text-align: center; margin-top: 20px; display: none; font-size: 20px; font-weight: 700; }
+        .error-message.show { display: block; }
+        .sync-status { background: #e8f5e9; color: #2e7d32; padding: 10px; border-radius: 8px; text-align: center; font-size: 14px; margin-top: 15px; display: none; }
+        .sync-status.show { display: block; }
+        .sync-status.error { background: #ffebee; color: #c62828; }
+        
+        /* 앱 화면 */
+        .app-container { display: none; }
+        .header { background: linear-gradient(135deg, #00AEEF 0%, #0088CC 100%); color: white; padding: 24px; position: sticky; top: 0; z-index: 100; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header h1 { font-size: 32px; font-weight: 900; }
+        .header p { font-size: 20px; margin-top: 4px; opacity: 0.95; }
+        .logout-btn { padding: 14px 24px; background: rgba(255,255,255,0.3); color: white; border: none; border-radius: 25px; font-weight: 800; cursor: pointer; font-size: 20px; min-width: 120px; }
+        .header-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .header-btn { padding: 18px; background: rgba(255,255,255,0.25); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 18px; min-height: 70px; }
+        
+        /* 동기화 인디케이터 */
+        .sync-indicator { 
+            position: fixed; 
+            top: 10px; 
+            right: 10px; 
+            padding: 8px 16px; 
+            border-radius: 20px; 
+            font-size: 14px; 
+            font-weight: 700; 
+            z-index: 9999;
+            display: none;
+        }
+        .sync-indicator.syncing { display: block; background: #fff3cd; color: #856404; }
+        .sync-indicator.success { display: block; background: #d4edda; color: #155724; }
+        .sync-indicator.error { display: block; background: #f8d7da; color: #721c24; }
+        
+        /* 통계 카드 */
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 16px; background: white; border-bottom: 2px solid #e0e0e0; }
+        .stat-card { background: #f8f9fa; padding: 20px 12px; border-radius: 12px; text-align: center; min-height: 110px; }
+        .stat-number { font-size: 36px; font-weight: 900; color: #00AEEF; }
+        .stat-label { font-size: 16px; color: #666; font-weight: 700; margin-top: 8px; }
+        
+        /* 예약 카드 */
+        .bookings-container { padding: 16px 16px 100px 16px; }
+        .booking-card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 5px solid #00AEEF; cursor: pointer; }
+        .booking-card.new-assignment { border-left-color: #f39c12; background: #fffbf0; }
+        .customer-name { font-size: 24px; font-weight: 900; color: #000; margin-bottom: 14px; }
+        .info-row { display: flex; align-items: flex-start; margin-bottom: 10px; gap: 10px; }
+        .info-icon { font-size: 20px; min-width: 24px; }
+        .info-value { font-size: 16px; color: #333; font-weight: 600; line-height: 1.4; }
+        .status-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; font-size: 15px; font-weight: 900; margin: 10px 0; }
+        .action-btn { width: 100%; padding: 16px; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; margin-top: 10px; font-size: 18px; transition: all 0.3s; min-height: 60px; }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-confirm { background: #f39c12; color: white; }
+        .btn-start { background: #3498db; color: white; }
+        .btn-complete { background: #27ae60; color: white; }
+        .btn-paid { background: #1abc9c; color: white; }
+        .empty-state { text-align: center; padding: 60px 20px; color: #7f8c8d; font-size: 18px; font-weight: 600; }
+        
+        /* 모달 */
+        .confirm-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+        .confirm-modal.show { display: flex; }
+        .confirm-content { background: white; padding: 40px; border-radius: 20px; max-width: 500px; width: 95%; text-align: center; }
+        .confirm-content h3 { font-size: 28px; margin-bottom: 24px; color: #000; font-weight: 900; line-height: 1.4; }
+        .confirm-buttons { display: flex; gap: 12px; margin-top: 30px; }
+        .confirm-buttons button { flex: 1; padding: 22px; border: none; border-radius: 12px; font-weight: 900; font-size: 22px; cursor: pointer; min-height: 75px; }
+        
+        /* 필터 버튼 */
+        .filter-btn { flex: 1; min-width: 100px; padding: 15px 12px; background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 10px; font-size: 18px; font-weight: 900; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .filter-btn.active { background: rgba(255,255,255,0.3); border-color: white; }
+        
+        /* 로딩 오버레이 */
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; }
+        .loading-overlay.show { display: flex; }
+        .loading-spinner { width: 50px; height: 50px; border: 5px solid #e0e0e0; border-top-color: #00AEEF; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { margin-top: 20px; font-size: 18px; font-weight: 600; color: #333; }
+    </style>
+</head>
+<body>
+    <!-- 동기화 인디케이터 -->
+    <div class="sync-indicator" id="syncIndicator">동기화 중...</div>
+    
+    <!-- 로딩 오버레이 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loadingText">처리 중...</div>
+    </div>
+
+    <div class="login-container" id="loginContainer">
+        <div class="login-box">
+            <div class="login-logo">
+                <h1>🚗 깨끗한집</h1>
+                <p>매니저 전용 앱 v2</p>
+            </div>
+            <div class="input-group">
+                <label class="input-label">아이디 (이름 또는 ID)</label>
+                <input type="text" class="input-field" id="loginUsername" placeholder="예: 홍길동">
+            </div>
+            <div class="input-group">
+                <label class="input-label">비밀번호 (연락처 뒷 4자리)</label>
+                <input type="password" class="input-field" id="loginPassword" placeholder="예: 5678">
+            </div>
+            <button class="login-btn" onclick="doLogin()">로그인</button>
+            <div class="error-message" id="errorMessage">아이디 또는 비밀번호가 올바르지 않습니다.</div>
+            <div class="sync-status" id="loginSyncStatus"></div>
+        </div>
+    </div>
+
+    <div class="app-container" id="appContainer">
+        <div class="header">
+            <div class="header-top">
+                <div>
+                    <h1>🚗 내 일정</h1>
+                    <p style="font-size: 13px; opacity: 0.9;"><span id="driverName"></span>님</p>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+                </div>
+            </div>
+            
+            <!-- 년/월/일 네비게이션 -->
+            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.2); padding: 15px 25px; border-radius: 12px; margin: 15px 0;">
+                <button onclick="prevDay()" style="background: rgba(255,255,255,0.3); color: white; border: none; border-radius: 50%; width: 55px; height: 55px; font-size: 26px; font-weight: 900; cursor: pointer;">◀</button>
+                <div id="currentDateDisplay" style="color: white; font-size: 28px; font-weight: 900; text-align: center; flex: 1;">2025년 11월 26일</div>
+                <button onclick="nextDay()" style="background: rgba(255,255,255,0.3); color: white; border: none; border-radius: 50%; width: 55px; height: 55px; font-size: 26px; font-weight: 900; cursor: pointer;">▶</button>
+            </div>
+            
+            <!-- 필터 버튼 -->
+            <div style="display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;">
+                <button id="filterToday" class="filter-btn active" onclick="filterToday()">
+                    <div id="todayCount" style="font-size: 32px; font-weight: 900; line-height: 1;">0</div>
+                    <div style="font-size: 16px;">📅 오늘</div>
+                </button>
+                <button id="filterAll" class="filter-btn" onclick="filterAll()">
+                    <div id="totalCount" style="font-size: 32px; font-weight: 900; line-height: 1;">0</div>
+                    <div style="font-size: 16px;">📋 전체</div>
+                </button>
+                <button id="filterCompleted" class="filter-btn" onclick="filterCompleted()">
+                    <div id="completedCount" style="font-size: 32px; font-weight: 900; line-height: 1;">0</div>
+                    <div style="font-size: 16px;">✅ 완료</div>
+                </button>
+            </div>
+            
+            <div class="header-buttons">
+                <button class="header-btn" onclick="loadMyBookings()">🔄 새로고침</button>
+                <button class="header-btn" onclick="showScheduleModal()">📅 내 스케줄</button>
+                <button class="header-btn" onclick="showVacationModal()">🌴 휴무등록</button>
+            </div>
+        </div>
+
+        <div class="bookings-container" id="bookingsContainer"></div>
+    </div>
+
+    <!-- 확인 모달 -->
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-content">
+            <h3 id="confirmMessage"></h3>
+            <div class="confirm-buttons">
+                <button onclick="confirmCancel()" style="background: #95a5a6; color: white;">취소</button>
+                <button onclick="confirmOk()" style="background: #00AEEF; color: white;">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 시간 선택 모달 -->
+    <div class="confirm-modal" id="timePickerModal">
+        <div class="confirm-content" style="max-width: 450px; padding: 30px;">
+            <h3 style="margin-bottom: 10px; font-size: 28px;">⏰ 작업 시작 시간 선택</h3>
+            <p id="timeSlotInfo" style="font-size: 16px; color: #666; margin-bottom: 20px;"></p>
+            
+            <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 25px;">
+                <div style="flex: 1; max-width: 120px;">
+                    <label style="display: block; font-weight: 700; margin-bottom: 10px; text-align: center; font-size: 18px;">시</label>
+                    <div id="hourScroller" style="height: 200px; overflow-y: auto; border: 3px solid #9b59b6; border-radius: 12px; background: #f8f9fa;"></div>
+                </div>
+                <div style="flex: 1; max-width: 120px;">
+                    <label style="display: block; font-weight: 700; margin-bottom: 10px; text-align: center; font-size: 18px;">분</label>
+                    <div id="minuteScroller" style="height: 200px; overflow-y: auto; border: 3px solid #9b59b6; border-radius: 12px; background: #f8f9fa;"></div>
+                </div>
+            </div>
+            
+            <div id="selectedTimeDisplay" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white; padding: 15px; border-radius: 12px; text-align: center; font-size: 24px; font-weight: 900; margin-bottom: 20px;">--:--</div>
+            
+            <div class="confirm-buttons">
+                <button onclick="closeTimePickerModal()" style="background: #95a5a6; color: white; padding: 18px; font-size: 20px;">취소</button>
+                <button onclick="confirmTimePicker()" style="background: #9b59b6; color: white; padding: 18px; font-size: 20px;">✅ 확인</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // 설정
+        // ========================================
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxRKOfqpoMwV_PGWFOt-O32i1cz9ZKH9SJutoJ9q8au6GwBQ72PyY7aEtVOrSawltBLBA/exec';
+        
+        // ⭐ 매니저페이 제외 대상 (페이 0원)
+        const EXCLUDED_WORKERS = ['송대헌', '간익준', '김성동', '김영배', '유하늘', '심재준'];
+        
+        // ⭐ 페이 제외 대상인지 체크
+        function isExcludedWorker(name) {
+            if (!name) return false;
+            return EXCLUDED_WORKERS.includes(String(name).trim());
+        }
+        
+        // ⭐ 내 매니저페이 계산 (제외 대상 반영)
+        function calculateMyPay(booking) {
+            if (!currentManager) return 0;
+            if (isExcludedWorker(currentManager.name)) return 0;
+            
+            const service = booking.service || booking.items || '';
+            
+            if (booking.manager === currentManager.name) {
+                if (service.includes('난방') && service.includes('수도')) {
+                    return 110000;  // 혼자 작업
+                } else if (service.includes('난방')) {
+                    return 80000;
+                } else if (service.includes('수도')) {
+                    return 50000;
+                }
+            }
+            return 0;
+        }
+        
+        // ========================================
+        // 상태 변수
+        // ========================================
+        let currentManager = null;
+        let myBookings = [];
+        let confirmCallback = null;
+        let filterMode = 'today';
+        let currentDate = new Date();
+        let currentTimePickerBooking = null;
+        let selectedHour = '09';
+        let selectedMinute = '00';
+        
+        // ========================================
+        // 유틸리티 함수
+        // ========================================
+        function showLoading(text = '처리 중...') {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loadingOverlay').classList.add('show');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+        
+        function showSyncIndicator(status, message) {
+            const indicator = document.getElementById('syncIndicator');
+            indicator.className = 'sync-indicator ' + status;
+            indicator.textContent = message;
+            
+            if (status === 'success' || status === 'error') {
+                setTimeout(() => {
+                    indicator.className = 'sync-indicator';
+                }, 3000);
+            }
+        }
+        
+        function showConfirm(message, callback) {
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmModal').classList.add('show');
+            confirmCallback = callback;
+        }
+        
+        function confirmOk() {
+            document.getElementById('confirmModal').classList.remove('show');
+            if (confirmCallback) confirmCallback(true);
+            confirmCallback = null;
+        }
+        
+        function confirmCancel() {
+            document.getElementById('confirmModal').classList.remove('show');
+            if (confirmCallback) confirmCallback(false);
+            confirmCallback = null;
+        }
+        
+        function formatDate(date) {
+            const d = new Date(date);
+            return d.getFullYear() + '-' + 
+                   String(d.getMonth() + 1).padStart(2, '0') + '-' + 
+                   String(d.getDate()).padStart(2, '0');
+        }
+        
+        function getStatusInfo(status) {
+            const map = {
+                'received': { text: '예약접수', color: '#e67e22' },
+                'confirmed': { text: '예약확정', color: '#f39c12' },
+                'scheduled': { text: '스케줄픽스', color: '#9b59b6' },
+                'started': { text: '작업시작', color: '#3498db' },
+                'completed': { text: '작업완료', color: '#27ae60' },
+                'paid': { text: '입금완료', color: '#1abc9c' },
+                'cancelled': { text: '예약취소', color: '#e74c3c' }
+            };
+            return map[status] || { text: status, color: '#95a5a6' };
+        }
+        
+        // ========================================
+        // 로그인/로그아웃 (서버 인증)
+        // ========================================
+        async function doLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const errorMsg = document.getElementById('errorMessage');
+            const syncStatus = document.getElementById('loginSyncStatus');
+            
+            errorMsg.classList.remove('show');
+            syncStatus.classList.remove('show');
+            
+            if (!username || !password) {
+                errorMsg.textContent = '아이디와 비밀번호를 입력해주세요.';
+                errorMsg.classList.add('show');
+                return;
+            }
+            
+            showLoading('로그인 중...');
+            
+            try {
+                // 서버 인증 시도
+                const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=managerLogin&userId=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
+                const result = await response.json();
+                
+                hideLoading();
+                
+                if (result.success) {
+                    currentManager = result.manager;
+                    
+                    // 세션 저장 (토큰 포함)
+                    localStorage.setItem('currentManager', JSON.stringify({
+                        ...currentManager,
+                        token: result.token,
+                        loginTime: new Date().toISOString()
+                    }));
+                    
+                    document.getElementById('loginContainer').style.display = 'none';
+                    document.getElementById('appContainer').style.display = 'block';
+                    document.getElementById('driverName').textContent = currentManager.name;
+                    
+                    syncStatus.textContent = '✅ 서버 인증 성공';
+                    syncStatus.className = 'sync-status show';
+                    
+                    loadMyBookings();
+                } else {
+                    errorMsg.textContent = result.message || '로그인 실패';
+                    errorMsg.classList.add('show');
+                }
+            } catch (error) {
+                hideLoading();
+                console.error('로그인 에러:', error);
+                
+                // 오프라인 폴백: localStorage 확인
+                const saved = localStorage.getItem('currentManager');
+                if (saved) {
+                    try {
+                        const savedManager = JSON.parse(saved);
+                        if (savedManager.name === username || savedManager.id === username) {
+                            currentManager = savedManager;
+                            
+                            document.getElementById('loginContainer').style.display = 'none';
+                            document.getElementById('appContainer').style.display = 'block';
+                            document.getElementById('driverName').textContent = currentManager.name;
+                            
+                            syncStatus.textContent = '⚠️ 오프라인 모드 (저장된 정보 사용)';
+                            syncStatus.className = 'sync-status show error';
+                            
+                            loadMyBookings();
+                            return;
+                        }
+                    } catch (e) {}
+                }
+                
+                errorMsg.textContent = '서버 연결 실패. 인터넷 연결을 확인하세요.';
+                errorMsg.classList.add('show');
+            }
+        }
+        
+        function doLogout() {
+            showConfirm('로그아웃 하시겠습니까?', function(result) {
+                if (!result) return;
+                
+                currentManager = null;
+                myBookings = [];
+                localStorage.removeItem('currentManager');
+                
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
+                document.getElementById('errorMessage').classList.remove('show');
+                document.getElementById('bookingsContainer').innerHTML = '';
+                
+                document.getElementById('appContainer').style.display = 'none';
+                document.getElementById('loginContainer').style.display = 'flex';
+            });
+        }
+        
+        // ========================================
+        // 예약 데이터 로드 (서버에서 직접)
+        // ========================================
+        async function loadMyBookings() {
+            if (!currentManager) return;
+            
+            showSyncIndicator('syncing', '🔄 동기화 중...');
+            
+            try {
+                const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getBookings`);
+                const result = await response.json();
+                
+                if (result.success && result.bookings) {
+                    // 현재 매니저의 예약만 필터링
+                    myBookings = result.bookings.filter(b => b.manager === currentManager.name);
+                    
+                    // 날짜순 정렬
+                    myBookings.sort((a, b) => (a.serviceDate || '9999-12-31').localeCompare(b.serviceDate || '9999-12-31'));
+                    
+                    showSyncIndicator('success', '✅ 동기화 완료');
+                    
+                    updateDateDisplay();
+                    renderBookings();
+                    updateStats();
+                } else {
+                    showSyncIndicator('error', '❌ 동기화 실패');
+                }
+            } catch (error) {
+                console.error('예약 로드 에러:', error);
+                showSyncIndicator('error', '❌ 서버 연결 실패');
+            }
+        }
+        
+        // ========================================
+        // 상태 변경 (서버 직접 업데이트 - 핵심 개선!)
+        // ========================================
+        async function changeStatus(bookingId, newStatus, additionalData = {}) {
+            const statusNames = {
+                'confirmed': '예약확정',
+                'scheduled': '스케줄픽스',
+                'started': '작업시작',
+                'completed': '작업완료',
+                'paid': '입금완료'
+            };
+            
+            showConfirm(`상태를 "${statusNames[newStatus]}"로 변경하시겠습니까?`, async function(result) {
+                if (!result) return;
+                
+                showLoading('상태 변경 중...');
+                showSyncIndicator('syncing', '🔄 서버 업데이트 중...');
+                
+                try {
+                    // ⭐ 서버에 직접 상태 업데이트 요청
+                    const payload = {
+                        action: 'updateStatusFromManager',
+                        bookingId: bookingId,
+                        status: newStatus,
+                        manager: currentManager.name,
+                        ...additionalData
+                    };
+                    
+                    const response = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const responseText = await response.text();
+                    let result;
+                    
+                    try {
+                        result = JSON.parse(responseText);
+                    } catch (e) {
+                        // CORS 이슈로 응답을 파싱할 수 없는 경우
+                        console.log('응답 파싱 실패, 성공으로 간주:', responseText);
+                        result = { success: true };
+                    }
+                    
+                    hideLoading();
+                    
+                    if (result.success) {
+                        showSyncIndicator('success', '✅ 상태 변경 완료');
+                        alert(`✅ 상태가 "${statusNames[newStatus]}"로 변경되었습니다!`);
+                        
+                        // 데이터 새로고침
+                        await loadMyBookings();
+                    } else {
+                        showSyncIndicator('error', '❌ 상태 변경 실패');
+                        alert('❌ 상태 변경 실패: ' + (result.message || '알 수 없는 오류'));
+                    }
+                } catch (error) {
+                    hideLoading();
+                    console.error('상태 변경 에러:', error);
+                    showSyncIndicator('error', '❌ 서버 연결 실패');
+                    
+                    // 재시도 옵션 제공
+                    if (confirm('서버 연결에 실패했습니다. 다시 시도하시겠습니까?')) {
+                        changeStatus(bookingId, newStatus, additionalData);
+                    }
+                }
+            });
+        }
+        
+        // ========================================
+        // 스케줄 픽스 (시간 선택)
+        // ========================================
+        function showTimePickerModal(booking) {
+            currentTimePickerBooking = booking;
+            
+            // 고객 희망 시간대 표시
+            let timeSlotText = '고객 희망 시간대: ';
+            if (booking.timeSlots && booking.timeSlots.length > 0) {
+                timeSlotText += booking.timeSlots.join(', ');
+            } else {
+                timeSlotText += '미정 (전체 시간 선택 가능)';
+            }
+            document.getElementById('timeSlotInfo').textContent = timeSlotText;
+            
+            // 가능한 시간 추출
+            let availableHours = [];
+            if (booking.timeSlots && booking.timeSlots.length > 0) {
+                booking.timeSlots.forEach(slot => {
+                    if (slot.includes('오전 9시') || slot.includes('9시 - 12시')) {
+                        availableHours.push(9, 10, 11);
+                    }
+                    if (slot.includes('오후 1시') || slot.includes('1시 - 4시')) {
+                        availableHours.push(13, 14, 15);
+                    }
+                    if (slot.includes('오후 4시') || slot.includes('4시 - 7시')) {
+                        availableHours.push(16, 17, 18);
+                    }
+                    if (slot.includes('종일')) {
+                        availableHours = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+                    }
+                });
+                availableHours = [...new Set(availableHours)].sort((a, b) => a - b);
+            } else {
+                availableHours = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+            }
+            
+            // 시간 스크롤러 생성
+            const hourScroller = document.getElementById('hourScroller');
+            hourScroller.innerHTML = '';
+            availableHours.forEach((h, i) => {
+                const item = document.createElement('div');
+                item.style.cssText = 'padding: 15px; text-align: center; font-size: 24px; font-weight: 700; cursor: pointer; transition: all 0.2s; border-bottom: 1px solid #e0e0e0;';
+                item.textContent = String(h).padStart(2, '0');
+                item.dataset.value = String(h).padStart(2, '0');
+                item.onclick = function() {
+                    hourScroller.querySelectorAll('div').forEach(d => { d.style.background = 'transparent'; d.style.color = '#333'; });
+                    this.style.background = '#9b59b6';
+                    this.style.color = 'white';
+                    selectedHour = this.dataset.value;
+                    updateTimeDisplay();
+                };
+                if (i === 0) {
+                    item.style.background = '#9b59b6';
+                    item.style.color = 'white';
+                    selectedHour = item.dataset.value;
+                }
+                hourScroller.appendChild(item);
+            });
+            
+            // 분 스크롤러 생성
+            const minuteScroller = document.getElementById('minuteScroller');
+            minuteScroller.innerHTML = '';
+            ['00', '10', '20', '30', '40', '50'].forEach((m, i) => {
+                const item = document.createElement('div');
+                item.style.cssText = 'padding: 15px; text-align: center; font-size: 24px; font-weight: 700; cursor: pointer; transition: all 0.2s; border-bottom: 1px solid #e0e0e0;';
+                item.textContent = m;
+                item.dataset.value = m;
+                item.onclick = function() {
+                    minuteScroller.querySelectorAll('div').forEach(d => { d.style.background = 'transparent'; d.style.color = '#333'; });
+                    this.style.background = '#9b59b6';
+                    this.style.color = 'white';
+                    selectedMinute = this.dataset.value;
+                    updateTimeDisplay();
+                };
+                if (i === 0) {
+                    item.style.background = '#9b59b6';
+                    item.style.color = 'white';
+                    selectedMinute = m;
+                }
+                minuteScroller.appendChild(item);
+            });
+            
+            updateTimeDisplay();
+            document.getElementById('timePickerModal').classList.add('show');
+        }
+        
+        function updateTimeDisplay() {
+            document.getElementById('selectedTimeDisplay').textContent = selectedHour + ':' + selectedMinute;
+        }
+        
+        function closeTimePickerModal() {
+            document.getElementById('timePickerModal').classList.remove('show');
+            currentTimePickerBooking = null;
+        }
+        
+        async function confirmTimePicker() {
+            if (!currentTimePickerBooking) return;
+            
+            const selectedTime = selectedHour + ':' + selectedMinute;
+            document.getElementById('timePickerModal').classList.remove('show');
+            
+            // 스케줄 픽스 상태로 변경 + 실제 시작 시간 저장
+            showLoading('스케줄 확정 중...');
+            showSyncIndicator('syncing', '🔄 서버 업데이트 중...');
+            
+            try {
+                const payload = {
+                    action: 'updateStatusFromManager',
+                    bookingId: currentTimePickerBooking.id,
+                    status: 'scheduled',
+                    actualStartTime: selectedTime,
+                    manager: currentManager.name,
+                    acceptAssignment: true  // ⭐ 배정 수락 표시
+                };
+                
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                hideLoading();
+                showSyncIndicator('success', '✅ 스케줄 확정 완료');
+                alert(`✅ 스케줄이 확정되었습니다!\n시작 시간: ${selectedTime}`);
+                
+                await loadMyBookings();
+            } catch (error) {
+                hideLoading();
+                console.error('스케줄 확정 에러:', error);
+                showSyncIndicator('error', '❌ 서버 연결 실패');
+                alert('❌ 스케줄 확정 실패. 다시 시도해주세요.');
+            }
+            
+            currentTimePickerBooking = null;
+        }
+        
+        // ========================================
+        // 예약 목록 렌더링
+        // ========================================
+        function renderBookings() {
+            const container = document.getElementById('bookingsContainer');
+            let displayBookings = [];
+            
+            const targetDateStr = formatDate(currentDate);
+            
+            if (filterMode === 'today') {
+                displayBookings = myBookings.filter(b => b.serviceDate === targetDateStr);
+            } else if (filterMode === 'all') {
+                displayBookings = myBookings.slice();
+            } else if (filterMode === 'completed') {
+                displayBookings = myBookings.filter(b => b.status === 'completed' || b.status === 'paid');
+            }
+            
+            if (displayBookings.length === 0) {
+                let emptyMsg = '';
+                if (filterMode === 'today') {
+                    emptyMsg = `${targetDateStr}에<br>예약이 없습니다`;
+                } else if (filterMode === 'all') {
+                    emptyMsg = '배정된 일정이 없습니다';
+                } else {
+                    emptyMsg = '완료된 일정이 없습니다';
+                }
+                container.innerHTML = `<div class="empty-state"><div style="font-size: 64px; margin-bottom: 16px;">📅</div><div>${emptyMsg}</div></div>`;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            displayBookings.forEach(b => {
+                const card = document.createElement('div');
+                card.className = 'booking-card';
+                if (b.assignmentSent && !b.assignmentAccepted) {
+                    card.classList.add('new-assignment');
+                }
+                
+                // 고객명
+                const name = document.createElement('div');
+                name.className = 'customer-name';
+                name.textContent = b.name;
+                card.appendChild(name);
+                
+                // 정보 행들
+                const infoItems = [
+                    { icon: '📅', text: b.serviceDate || '미지정' },
+                    { icon: '📞', text: b.phone },
+                    { icon: '📍', text: b.address },
+                    { icon: '🏠', text: b.service || b.items }
+                ];
+                
+                infoItems.forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = 'info-row';
+                    row.innerHTML = `<div class="info-icon">${item.icon}</div><div class="info-value">${item.text}</div>`;
+                    card.appendChild(row);
+                });
+                
+                // 희망 시간대 표시
+                if (b.timeSlots && b.timeSlots.length > 0) {
+                    const timeRow = document.createElement('div');
+                    timeRow.style.cssText = 'background: #fff3cd; color: #856404; padding: 10px 12px; border-radius: 8px; margin-top: 10px; font-weight: 600; font-size: 15px;';
+                    timeRow.innerHTML = '🕐 희망: ' + b.timeSlots.join(', ');
+                    card.appendChild(timeRow);
+                }
+                
+                // 상태 배지
+                const statusInfo = getStatusInfo(b.status);
+                const badge = document.createElement('div');
+                badge.className = 'status-badge';
+                badge.style.background = statusInfo.color;
+                badge.style.color = 'white';
+                badge.textContent = statusInfo.text;
+                card.appendChild(badge);
+                
+                // 실제 시작 시간 표시
+                if (b.actualStartTime) {
+                    const timeInfo = document.createElement('div');
+                    timeInfo.style.cssText = 'background: #e8f5e9; color: #2e7d32; padding: 10px 12px; border-radius: 8px; margin-top: 10px; font-weight: 700; font-size: 15px;';
+                    timeInfo.textContent = '✅ 시작: ' + b.actualStartTime;
+                    card.appendChild(timeInfo);
+                }
+                
+                // 액션 버튼
+                const actions = document.createElement('div');
+                actions.style.marginTop = '12px';
+                
+                if (b.status === 'confirmed') {
+                    const btn = document.createElement('button');
+                    btn.className = 'action-btn';
+                    btn.style.cssText = 'background: #9b59b6; color: white;';
+                    btn.textContent = '📅 스케줄 픽스';
+                    btn.onclick = (e) => { e.stopPropagation(); showTimePickerModal(b); };
+                    actions.appendChild(btn);
+                } else if (b.status === 'scheduled') {
+                    const btn = document.createElement('button');
+                    btn.className = 'action-btn btn-start';
+                    btn.textContent = '🚀 작업시작';
+                    btn.onclick = (e) => { e.stopPropagation(); changeStatus(b.id, 'started'); };
+                    actions.appendChild(btn);
+                } else if (b.status === 'started') {
+                    const btn = document.createElement('button');
+                    btn.className = 'action-btn btn-complete';
+                    btn.textContent = '✅ 작업완료';
+                    btn.onclick = (e) => { e.stopPropagation(); changeStatus(b.id, 'completed'); };
+                    actions.appendChild(btn);
+                } else if (b.status === 'completed' || b.status === 'paid') {
+                    const msg = document.createElement('div');
+                    msg.style.cssText = 'background: #d4edda; color: #155724; padding: 12px; border-radius: 8px; text-align: center; font-weight: 700;';
+                    msg.textContent = b.status === 'paid' ? '✅ 입금완료!' : '✅ 작업완료! (입금 대기중)';
+                    card.appendChild(msg);
+                }
+                
+                if (actions.childNodes.length > 0) {
+                    card.appendChild(actions);
+                }
+                
+                // 전화 걸기 버튼
+                const callBtn = document.createElement('a');
+                callBtn.href = 'tel:' + b.phone;
+                callBtn.style.cssText = 'display: block; width: 100%; padding: 12px; background: #00AEEF; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; text-align: center; text-decoration: none; margin-top: 10px;';
+                callBtn.textContent = '📞 전화하기';
+                callBtn.onclick = (e) => e.stopPropagation();
+                card.appendChild(callBtn);
+                
+                container.appendChild(card);
+            });
+        }
+        
+        // ========================================
+        // 날짜 네비게이션
+        // ========================================
+        function updateDateDisplay() {
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            const d = currentDate;
+            document.getElementById('currentDateDisplay').textContent = 
+                `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 (${days[d.getDay()]})`;
+        }
+        
+        function prevDay() {
+            currentDate.setDate(currentDate.getDate() - 1);
+            updateDateDisplay();
+            renderBookings();
+        }
+        
+        function nextDay() {
+            currentDate.setDate(currentDate.getDate() + 1);
+            updateDateDisplay();
+            renderBookings();
+        }
+        
+        // ========================================
+        // 필터
+        // ========================================
+        function updateStats() {
+            const todayStr = formatDate(new Date());
+            const todayBookings = myBookings.filter(b => b.serviceDate === todayStr);
+            const completedBookings = myBookings.filter(b => b.status === 'completed' || b.status === 'paid');
+            
+            document.getElementById('totalCount').textContent = myBookings.length;
+            document.getElementById('todayCount').textContent = todayBookings.length;
+            document.getElementById('completedCount').textContent = completedBookings.length;
+        }
+        
+        function updateFilterButtons() {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('filter' + filterMode.charAt(0).toUpperCase() + filterMode.slice(1)).classList.add('active');
+        }
+        
+        function filterToday() {
+            filterMode = 'today';
+            currentDate = new Date();
+            updateDateDisplay();
+            updateFilterButtons();
+            renderBookings();
+        }
+        
+        function filterAll() {
+            filterMode = 'all';
+            updateFilterButtons();
+            renderBookings();
+        }
+        
+        function filterCompleted() {
+            filterMode = 'completed';
+            updateFilterButtons();
+            renderBookings();
+        }
+        
+        // ========================================
+        // 플레이스홀더 함수들
+        // ========================================
+        function showScheduleModal() {
+            alert('📅 스케줄 보기 기능\n\n현재 ' + myBookings.length + '건의 예약이 있습니다.');
+        }
+        
+        function showVacationModal() {
+            alert('🌴 휴무 등록 기능\n\n관리자에게 문의하여 휴무를 등록해주세요.');
+        }
+        
+        // ========================================
+        // 초기화
+        // ========================================
+        window.addEventListener('load', function() {
+            console.log('✅ 매니저 앱 v2 로드 완료');
+            
+            // 저장된 로그인 정보 확인
+            const saved = localStorage.getItem('currentManager');
+            if (saved) {
+                try {
+                    currentManager = JSON.parse(saved);
+                    
+                    // 로그인 시간 확인 (24시간 초과 시 재로그인)
+                    const loginTime = new Date(currentManager.loginTime);
+                    const now = new Date();
+                    const hoursDiff = (now - loginTime) / (1000 * 60 * 60);
+                    
+                    if (hoursDiff < 24) {
+                        document.getElementById('loginContainer').style.display = 'none';
+                        document.getElementById('appContainer').style.display = 'block';
+                        document.getElementById('driverName').textContent = currentManager.name;
+                        
+                        loadMyBookings();
+                    } else {
+                        // 세션 만료
+                        localStorage.removeItem('currentManager');
+                        currentManager = null;
+                    }
+                } catch (e) {
+                    localStorage.removeItem('currentManager');
+                }
+            }
+            
+            // 5초마다 자동 새로고침
+            setInterval(function() {
+                if (currentManager && document.getElementById('appContainer').style.display !== 'none') {
+                    loadMyBookings();
+                }
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

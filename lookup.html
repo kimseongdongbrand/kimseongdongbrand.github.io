@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>내 예약 조회 | 깨끗한집</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            padding: 30px 0;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        .search-section h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 16px;
+        }
+        .input-group {
+            margin-bottom: 16px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 16px;
+            font-size: 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .search-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .search-btn:active {
+            transform: scale(0.98);
+        }
+        .search-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        /* 예약 목록 */
+        .booking-list {
+            display: none;
+        }
+        .booking-list.show {
+            display: block;
+        }
+        .booking-list h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .booking-count {
+            background: #667eea;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .booking-card {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 12px;
+            border-left: 4px solid #667eea;
+        }
+        .booking-card.past {
+            opacity: 0.6;
+            border-left-color: #999;
+        }
+        .booking-card.cancelled {
+            opacity: 0.5;
+            border-left-color: #e74c3c;
+            background: #fdf2f2;
+        }
+        
+        .booking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .booking-id {
+            font-size: 12px;
+            color: #999;
+        }
+        .booking-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .status-received { background: #fff3cd; color: #856404; }
+        .status-confirmed { background: #d4edda; color: #155724; }
+        .status-scheduled { background: #e2d5f5; color: #6f42c1; }
+        .status-started { background: #cce5ff; color: #004085; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-paid { background: #28a745; color: white; }
+        .status-cancelled { background: #e74c3c; color: white; }
+        
+        .booking-date {
+            font-size: 22px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .booking-info {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.8;
+        }
+        .booking-info span {
+            display: block;
+        }
+        
+        .cancel-btn {
+            width: 100%;
+            padding: 12px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+        .cancel-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        /* 빈 상태 */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        .empty-state .icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        
+        /* 로딩 */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        .loading.show {
+            display: block;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e0e0e0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 확인 모달 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 360px;
+            width: 100%;
+            text-align: center;
+        }
+        .modal h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+        .modal p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .modal-btns {
+            display: flex;
+            gap: 12px;
+        }
+        .modal-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .modal-btn.cancel {
+            background: #e0e0e0;
+            color: #333;
+        }
+        .modal-btn.confirm {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        /* 하단 링크 */
+        .footer-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .footer-link a {
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+            opacity: 0.9;
+        }
+        
+        /* 고객센터 */
+        .help-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .help-section p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .help-phone {
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 내 예약 조회</h1>
+            <p>예약 확인 및 취소</p>
+        </div>
+        
+        <div class="card search-section">
+            <h2>🔍 예약 찾기</h2>
+            <div class="input-group">
+                <label>전화번호</label>
+                <input type="tel" id="phoneInput" placeholder="010-1234-5678" maxlength="13">
+            </div>
+            <button class="search-btn" id="searchBtn" onclick="searchBookings()">
+                예약 조회하기
+            </button>
+        </div>
+        
+        <div class="card loading" id="loadingSection">
+            <div class="spinner"></div>
+            <div>예약을 찾고 있습니다...</div>
+        </div>
+        
+        <div class="card booking-list" id="bookingList">
+            <h2>📅 나의 예약 <span class="booking-count" id="bookingCount">0</span></h2>
+            <div id="bookingsContainer"></div>
+        </div>
+        
+        <div class="footer-link">
+            <a href="customer_booking_final.html">← 새 예약하기</a>
+        </div>
+    </div>
+    
+    <!-- 취소 확인 모달 -->
+    <div class="modal-overlay" id="cancelModal">
+        <div class="modal">
+            <h3>⚠️ 예약 취소</h3>
+            <p id="cancelModalText">정말 이 예약을 취소하시겠습니까?</p>
+            <div class="modal-btns">
+                <button class="modal-btn cancel" onclick="closeCancelModal()">아니오</button>
+                <button class="modal-btn confirm" onclick="confirmCancel()">예, 취소합니다</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ⚠️ Google Apps Script URL - 실제 배포된 URL로 변경하세요
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxRKOfqpoMwV_PGWFOt-O32i1cz9ZKH9SJutoJ9q8au6GwBQ72PyY7aEtVOrSawltBLBA/exec';
+        
+        let currentPhone = '';
+        let cancelTargetId = '';
+        
+        // 전화번호 포맷팅
+        document.getElementById('phoneInput').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^0-9]/g, '');
+            if (value.length > 3 && value.length <= 7) {
+                value = value.slice(0, 3) + '-' + value.slice(3);
+            } else if (value.length > 7) {
+                value = value.slice(0, 3) + '-' + value.slice(3, 7) + '-' + value.slice(7, 11);
+            }
+            e.target.value = value;
+        });
+        
+        // 엔터키 검색
+        document.getElementById('phoneInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchBookings();
+            }
+        });
+        
+        async function searchBookings() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            
+            if (!phone || phone.length < 10) {
+                alert('전화번호를 정확히 입력해주세요');
+                return;
+            }
+            
+            currentPhone = phone;
+            
+            // UI 상태 변경
+            document.getElementById('searchBtn').disabled = true;
+            document.getElementById('loadingSection').classList.add('show');
+            document.getElementById('bookingList').classList.remove('show');
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'lookupBooking',
+                        phone: phone
+                    })
+                });
+                
+                const result = await response.json();
+                
+                document.getElementById('loadingSection').classList.remove('show');
+                document.getElementById('searchBtn').disabled = false;
+                
+                if (result.success) {
+                    renderBookings(result.bookings || []);
+                } else {
+                    alert('조회 실패: ' + (result.message || '알 수 없는 오류'));
+                }
+                
+            } catch (error) {
+                document.getElementById('loadingSection').classList.remove('show');
+                document.getElementById('searchBtn').disabled = false;
+                alert('서버 연결 오류. 다시 시도해주세요.');
+            }
+        }
+        
+        function renderBookings(bookings) {
+            const container = document.getElementById('bookingsContainer');
+            document.getElementById('bookingCount').textContent = bookings.length;
+            document.getElementById('bookingList').classList.add('show');
+            
+            if (bookings.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <div>해당 전화번호로<br>예약 내역이 없습니다</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            bookings.forEach(b => {
+                const statusClass = getStatusClass(b.status);
+                const cardClass = b.status === 'cancelled' ? 'cancelled' : (b.isPast ? 'past' : '');
+                
+                const card = document.createElement('div');
+                card.className = `booking-card ${cardClass}`;
+                
+                card.innerHTML = `
+                    <div class="booking-header">
+                        <div class="booking-id">예약번호: ${b.id || b.number || '-'}</div>
+                        <div class="booking-status ${statusClass}">${b.statusText}</div>
+                    </div>
+                    <div class="booking-date">📅 ${formatDate(b.serviceDate)}</div>
+                    <div class="booking-info">
+                        <span>📍 ${b.address}</span>
+                        <span>🔧 ${b.service}</span>
+                        ${b.manager ? `<span>👷 담당: ${b.manager}</span>` : ''}
+                        ${b.revenue ? `<span>💰 ${Number(b.revenue).toLocaleString()}원</span>` : ''}
+                    </div>
+                    ${b.canCancel ? `<button class="cancel-btn" onclick="showCancelModal('${b.id}', '${formatDate(b.serviceDate)}')">예약 취소하기</button>` : ''}
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+        
+        function getStatusClass(status) {
+            const map = {
+                'received': 'status-received',
+                'confirmed': 'status-confirmed',
+                'scheduled': 'status-scheduled',
+                'started': 'status-started',
+                'completed': 'status-completed',
+                'paid': 'status-paid',
+                'cancelled': 'status-cancelled'
+            };
+            return map[status] || 'status-received';
+        }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return '미정';
+            const d = new Date(dateStr);
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            return `${d.getMonth() + 1}월 ${d.getDate()}일 (${days[d.getDay()]})`;
+        }
+        
+        function showCancelModal(bookingId, dateStr) {
+            cancelTargetId = bookingId;
+            document.getElementById('cancelModalText').innerHTML = 
+                `<strong>${dateStr}</strong> 예약을 취소하시겠습니까?<br><br>취소 후에는 복구할 수 없습니다.`;
+            document.getElementById('cancelModal').classList.add('show');
+        }
+        
+        function closeCancelModal() {
+            document.getElementById('cancelModal').classList.remove('show');
+            cancelTargetId = '';
+        }
+        
+        async function confirmCancel() {
+            if (!cancelTargetId || !currentPhone) {
+                alert('오류가 발생했습니다. 다시 시도해주세요.');
+                return;
+            }
+            
+            closeCancelModal();
+            document.getElementById('loadingSection').classList.add('show');
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'cancelBooking',
+                        id: cancelTargetId,
+                        phone: currentPhone
+                    })
+                });
+                
+                const result = await response.json();
+                
+                document.getElementById('loadingSection').classList.remove('show');
+                
+                if (result.success) {
+                    alert('✅ 예약이 취소되었습니다.');
+                    searchBookings(); // 목록 새로고침
+                } else {
+                    alert('❌ 취소 실패: ' + (result.message || '알 수 없는 오류'));
+                }
+                
+            } catch (error) {
+                document.getElementById('loadingSection').classList.remove('show');
+                alert('서버 연결 오류. 다시 시도해주세요.');
+            }
+        }
+    </script>
+</body>
+</html>

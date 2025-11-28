@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <!-- ⭐ 모바일 최적화 viewport (확대 방지 + 노치 대응) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <!-- iOS 웹앱 설정 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <title>(주)홈케어 깨끗한집 - 배관 스케일링 예약</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        /* ⭐ 모바일 터치 최적화 */
+        html {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-text-size-adjust: 100%;
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, #00AEEF 0%, #0088CC 100%); 
+            min-height: 100vh; 
+            /* ⭐ iPhone 노치/Safe Area 대응 */
+            padding: 20px;
+            padding-top: max(20px, env(safe-area-inset-top));
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            padding-left: max(20px, env(safe-area-inset-left));
+            padding-right: max(20px, env(safe-area-inset-right));
+        }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #00AEEF 0%, #0088CC 100%); color: white; padding: 40px 30px 30px; text-align: center; }
+        .form-container { padding: 40px 25px; }
+        .form-group { margin-bottom: 28px; }
+        /* ⭐ 폰트 크기 증가 (어르신 배려) */
+        label { display: block; margin-bottom: 10px; font-weight: 700; color: #333; font-size: 17px; }
+        /* ⭐ 입력필드 16px 이상 (iOS 자동확대 방지) + 터치 최적화 */
+        input[type="text"], input[type="tel"], textarea { 
+            width: 100%; 
+            padding: 16px 18px; 
+            border: 2px solid #e0e0e0; 
+            border-radius: 12px; 
+            font-size: 18px;  /* 16px 이상 필수! */
+            font-family: inherit;
+            -webkit-appearance: none;
+            appearance: none;
+            min-height: 56px;  /* 터치 최소 크기 */
+        }
+        input:focus, textarea:focus { outline: none; border-color: #00AEEF; box-shadow: 0 0 0 3px rgba(0, 174, 239, 0.1); }
+        .date-selector { background: #f0faff; border: 3px solid #00AEEF; border-radius: 12px; padding: 22px; cursor: pointer; text-align: center; transition: all 0.3s; min-height: 70px; }
+        .date-selector:hover { background: #e0f5ff; transform: scale(1.02); }
+        .date-selector.disabled { background: #f5f5f5; border-color: #ccc; cursor: not-allowed; opacity: 0.6; }
+        .date-selector-text { font-size: 24px; font-weight: 700; color: #00AEEF; }
+        .date-selector-placeholder { color: #999; }
+        .service-options { display: flex; flex-direction: column; gap: 15px; }
+        /* ⭐ 서비스 카드 터치 영역 증가 */
+        .service-card { 
+            border: 2px solid #e0e0e0; 
+            border-radius: 12px; 
+            padding: 22px; 
+            cursor: pointer; 
+            position: relative; 
+            transition: all 0.2s; 
+            min-height: 70px;  /* 터치 최소 크기 */
+            -webkit-tap-highlight-color: rgba(0, 174, 239, 0.2);
+        }
+        .service-card:hover { border-color: #00AEEF; transform: translateY(-2px); }
+        .service-card:active { transform: scale(0.98); }  /* 터치 피드백 */
+        .service-card.selected { border-color: #00AEEF; background: #f0faff; }
+        .service-card.disabled { background: #f5f5f5; border-color: #ddd; cursor: not-allowed; opacity: 0.5; }
+        .service-content { display: flex; justify-content: space-between; align-items: center; padding-left: 40px; }
+        .service-name { font-size: 18px; font-weight: 700; }
+        .checkmark { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); height: 26px; width: 26px; border: 2px solid #ddd; border-radius: 50%; }
+        .service-card.selected .checkmark { background: #00AEEF; border-color: #00AEEF; }
+        .service-card.selected .checkmark:after { content: ""; position: absolute; display: block; left: 8px; top: 4px; width: 6px; height: 12px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+        /* ⭐ 제출 버튼 터치 최적화 */
+        .submit-btn { 
+            width: 100%; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #00AEEF 0%, #0088CC 100%); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 20px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            margin-top: 10px; 
+            transition: all 0.2s; 
+            min-height: 64px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 174, 239, 0.4); }
+        .submit-btn:active { transform: scale(0.98); }
+        .required { color: #e74c3c; }
+        .success-message { display: none; background: #d4edda; color: #155724; padding: 22px; border-radius: 12px; margin-bottom: 22px; border: 2px solid #c3e6cb; text-align: center; font-weight: 800; font-size: 20px; }
+        .success-message.show { display: block; animation: slideDown 0.3s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .price-summary { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); color: white; padding: 22px; border-radius: 14px; margin-top: 22px; margin-bottom: 22px; }
+        .price-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 18px; }
+        .price-row:last-child { margin-bottom: 0; border-top: 2px solid rgba(255,255,255,0.3); padding-top: 12px; font-size: 22px; font-weight: 900; }
+        .price-label { opacity: 0.9; }
+        .price-value { font-weight: 700; }
+        .company-info { background: #f8f9fa; padding: 22px; border-radius: 14px; margin-bottom: 28px; border: 2px solid #e0e0e0; }
+        .company-info-title { font-size: 16px; font-weight: 800; color: #333; margin-bottom: 14px; }
+        .company-links { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+        /* ⭐ 회사 링크 터치 영역 확대 */
+        .company-link { display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; background: white; border: 2px solid #e0e0e0; border-radius: 10px; text-decoration: none; color: #333; font-size: 15px; font-weight: 700; transition: all 0.2s; min-height: 48px; }
+        .company-link:active { background: #f0faff; border-color: #00AEEF; }
+        .process-info { font-size: 14px; color: #666; line-height: 1.7; }
+        .process-step { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .step-num { background: #00AEEF; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; }
+        /* ⭐ 캘린더 모달 풀스크린 모바일 */
+        .calendar-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); z-index: 1000; justify-content: center; align-items: center; padding: 16px; padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+        .calendar-modal.show { display: flex; }
+        .calendar-container { background: white; border-radius: 20px; padding: 28px; max-width: 450px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        /* ⭐ 캘린더 네비게이션 버튼 확대 */
+        .calendar-nav-btn { width: 54px; height: 54px; border: none; background: #00AEEF; color: white; font-size: 26px; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+        .calendar-nav-btn:active { transform: scale(0.95); background: #0088CC; }
+        .calendar-title { font-size: 24px; font-weight: 800; color: #333; }
+        .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 10px; }
+        .calendar-weekday { text-align: center; font-weight: 700; color: #666; padding: 10px 0; font-size: 14px; }
+        .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+        /* ⭐ 캘린더 날짜 터치 영역 확대 */
+        .calendar-day { aspect-ratio: 1; border: 2px solid #e0e0e0; background: white; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.2s; position: relative; min-height: 44px; }
+        .calendar-day:active:not(.disabled):not(.empty):not(.full) { background: #00AEEF; color: white; border-color: #00AEEF; transform: scale(0.95); }
+        .calendar-day.today { border-color: #f39c12; background: #fff3cd; }
+        .calendar-day.selected { background: #00AEEF; color: white; border-color: #00AEEF; }
+        .calendar-day.disabled { color: #ccc; cursor: not-allowed; background: #f5f5f5; }
+        .calendar-day.full { color: #e74c3c; cursor: not-allowed; background: #ffeaea; border-color: #e74c3c; }
+        .calendar-day.empty { border: none; cursor: default; }
+        .calendar-day .slots-indicator { font-size: 10px; color: #27ae60; margin-top: 2px; font-weight: 700; }
+        .calendar-day.full .slots-indicator { color: #e74c3c; }
+        /* ⭐ 캘린더 닫기 버튼 확대 */
+        .calendar-close { margin-top: 20px; width: 100%; padding: 18px; background: #95a5a6; color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.2s; min-height: 58px; }
+        .calendar-close:active { background: #7f8c8d; transform: scale(0.98); }
+        /* ⭐ 확인 모달 모바일 최적화 */
+        .confirm-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); z-index: 2000; justify-content: center; align-items: center; padding: 16px; padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+        .confirm-modal.show { display: flex; }
+        .confirm-content { background: white; border-radius: 20px; padding: 32px; max-width: 500px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-height: 85vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .confirm-title { font-size: 26px; font-weight: 900; color: #333; margin-bottom: 24px; text-align: center; }
+        .confirm-info { background: #f8f9fa; border-radius: 14px; padding: 22px; margin-bottom: 24px; }
+        .confirm-row { display: flex; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #e0e0e0; }
+        .confirm-row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .confirm-label { font-weight: 800; color: #555; min-width: 100px; font-size: 16px; }
+        .confirm-value { color: #000; font-weight: 700; font-size: 16px; flex: 1; }
+        .confirm-buttons { display: flex; gap: 14px; }
+        /* ⭐ 확인 버튼 터치 영역 확대 */
+        .confirm-buttons button { flex: 1; padding: 18px; border: none; border-radius: 14px; font-size: 20px; font-weight: 900; cursor: pointer; transition: all 0.2s; min-height: 60px; }
+        .confirm-buttons .btn-no { background: #95a5a6; color: white; }
+        .confirm-buttons .btn-no:active { background: #7f8c8d; transform: scale(0.98); }
+        .confirm-buttons .btn-yes { background: linear-gradient(135deg, #00AEEF 0%, #0088CC 100%); color: white; }
+        .confirm-buttons .btn-yes:active { transform: scale(0.98); }
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.95); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; }
+        .loading-overlay.show { display: flex; }
+        .loading-spinner { width: 60px; height: 60px; border: 6px solid #e0e0e0; border-top-color: #00AEEF; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { margin-top: 24px; font-size: 20px; font-weight: 700; color: #333; }
+        
+        /* 주소 입력란 그리드 */
+        .address-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .address-full { grid-column: 1 / -1; }
+        
+        /* ⭐ 시간대 체크박스 터치 최적화 */
+        .time-slot-container { display: flex; flex-direction: column; gap: 12px; }
+        .time-slot-option { 
+            display: flex; 
+            align-items: center; 
+            gap: 14px; 
+            padding: 16px 18px; 
+            background: #f8f9fa; 
+            border: 2px solid #e0e0e0; 
+            border-radius: 12px; 
+            cursor: pointer;
+            min-height: 58px;
+            transition: all 0.2s;
+        }
+        .time-slot-option:active { background: #e8f4ff; border-color: #00AEEF; }
+        .time-slot-option.selected { background: #e8f4ff; border-color: #00AEEF; }
+        .time-slot-option input[type="checkbox"] {
+            width: 26px;
+            height: 26px;
+            accent-color: #00AEEF;
+        }
+        .time-slot-option label { 
+            font-size: 17px; 
+            font-weight: 700; 
+            color: #333; 
+            flex: 1;
+            cursor: pointer;
+        }
+        
+        /* ⭐ 작은 화면 대응 (iPhone SE, Galaxy S 등) */
+        @media screen and (max-width: 374px) {
+            body { padding: 12px; }
+            .form-container { padding: 30px 18px; }
+            .header { padding: 30px 18px 20px; }
+            .header h1 { font-size: 26px !important; }
+            label { font-size: 15px; }
+            input[type="text"], input[type="tel"], textarea { font-size: 16px; padding: 14px; }
+            .service-name { font-size: 16px; }
+            .date-selector-text { font-size: 20px; }
+            .calendar-container { padding: 20px; }
+            .calendar-title { font-size: 20px; }
+            .calendar-day { font-size: 15px; }
+            .address-grid { grid-template-columns: 1fr; }  /* 한 줄씩 */
+        }
+        
+        /* ⭐ 아이폰 노치 추가 대응 */
+        @supports (padding: max(0px)) {
+            .header { 
+                padding-top: max(40px, calc(env(safe-area-inset-top) + 20px)); 
+            }
+        }
+        
+        /* ⭐ 다크 모드 대응 (선택사항) */
+        @media (prefers-color-scheme: dark) {
+            /* 다크모드는 사용하지 않음 - 어르신 가독성 */
+        }
+        
+        /* ⭐ 예약 완료 모달 */
+        .success-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .success-overlay.show { display: flex; }
+        .success-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 32px 24px;
+            max-width: 360px;
+            width: 100%;
+            text-align: center;
+            animation: modalPop 0.3s ease;
+        }
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="font-size: 32px; font-weight: 900;">배관 스케일링 서비스 예약</h1>
+            <a href="customer_lookup.html" style="display: inline-block; margin-top: 12px; padding: 10px 20px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 20px; font-size: 14px; font-weight: 600;">📋 내 예약 조회/취소</a>
+        </div>
+
+        <div class="form-container">
+            <div class="company-info">
+                <div class="company-info-title">📌 (주)홈케어 깨끗한집</div>
+                <div class="company-links">
+                    <a href="http://www.xn--9l0bs0bb58byrk.com/sub0101.php" target="_blank" class="company-link">🌐 회사 홈페이지</a>
+                    <a href="https://www.youtube.com/@%EA%B9%A8%EC%A7%91%EB%8B%A5%ED%84%B0" target="_blank" class="company-link">📺 유튜브 채널</a>
+                </div>
+                <div class="process-info">
+                    <div style="font-weight: 700; margin-bottom: 10px; font-size: 14px; color: #00AEEF;">🔧 난방/수도 배관 스케일링 방식</div>
+                    <div style="font-size: 11px; color: #666; margin-bottom: 10px; background: #e8f4f8; padding: 8px; border-radius: 6px;">
+                        <strong>특허 번호 제10-0885390호</strong> 획득<br>독자적인 친환경 장치 사용
+                    </div>
+                    <div class="process-step"><span class="step-num">1</span> <strong>이온화수기 사용</strong> - 자체 제작 이온화수기로 물(H₂O) 분자를 분해하여 강 알칼리 수소수와 오존수 생성</div>
+                    <div class="process-step"><span class="step-num">2</span> <strong>화학적 용해 (수소수)</strong> - 수소수가 배관 내 녹과 슬러지 분자를 만나 약 150배 팽창시켜 쉽게 박리</div>
+                    <div class="process-step"><span class="step-num">3</span> <strong>생물학적 살균 (오존수)</strong> - 오존수로 배관 표면 멸균, 항균·살균 효과로 배관 내부를 위생적으로 유지</div>
+                    <div class="process-step"><span class="step-num">4</span> <strong>저압 세척</strong> - 기존 수압(6~10bar)보다 낮은 4bar의 안전한 압력으로 배관 손상 없이 오염물 제거</div>
+                </div>
+            </div>
+
+            <!-- 예약 완료 모달 -->
+            <div class="success-overlay" id="successOverlay">
+                <div class="success-modal">
+                    <div style="font-size: 64px; margin-bottom: 16px;">✅</div>
+                    <h2 style="color: #27ae60; margin-bottom: 8px;">예약이 접수되었습니다!</h2>
+                    <div id="bookingIdDisplay" style="background: #f8f9fa; padding: 16px; border-radius: 12px; margin: 16px 0; font-size: 18px;">
+                        <div style="color: #666; font-size: 14px; margin-bottom: 4px;">예약번호</div>
+                        <div id="bookingIdText" style="font-weight: 800; color: #00AEEF; font-size: 24px; letter-spacing: 2px;">-</div>
+                    </div>
+                    <div style="background: #fff3cd; padding: 12px; border-radius: 8px; color: #856404; font-size: 14px; margin-bottom: 16px;">
+                        📱 예약번호를 저장해주세요!<br>
+                        조회/취소 시 필요합니다.
+                    </div>
+                    <div id="bookingSummary" style="text-align: left; background: #f8f9fa; padding: 16px; border-radius: 8px; font-size: 14px; line-height: 1.8;"></div>
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button onclick="closeSuccessModal()" style="flex: 1; padding: 14px; background: #e0e0e0; color: #333; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer;">확인</button>
+                        <a href="customer_lookup.html" style="flex: 1; padding: 14px; background: #00AEEF; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; text-decoration: none; text-align: center;">내 예약 보기</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>이름 <span class="required">*</span></label>
+                <input type="text" id="name" placeholder="홍길동">
+            </div>
+
+            <div class="form-group">
+                <label>전화번호 <span class="required">*</span></label>
+                <input type="tel" id="phone" placeholder="010-1234-5678" maxlength="13">
+            </div>
+
+            <div class="form-group">
+                <label>주소 기입란 (지역/아파트이름/동/호수) <span class="required">*</span></label>
+                <div class="address-grid">
+                    <input type="text" id="region" placeholder="지역 (예: 송파구)">
+                    <input type="text" id="aptName" placeholder="아파트 이름 (예: 충남아파트)">
+                    <input type="text" id="dong" placeholder="동 (예: 621동)">
+                    <input type="text" id="ho" placeholder="호수 (예: 1302호)">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="font-size: 16px; font-weight: 700; margin-bottom: 12px;">서비스 희망 날짜 <span class="required">*</span></label>
+                <div class="date-selector" id="dateSelector">
+                    <div class="date-selector-text date-selector-placeholder" id="dateDisplay">📅 날짜를 선택하세요</div>
+                </div>
+            </div>
+
+            <div class="form-group" id="timeOptionsContainer">
+                <label style="font-size: 16px; font-weight: 700; margin-bottom: 12px;">가능한 시간대 선택 (여러 개 선택 가능) <span class="required">*</span></label>
+                <div class="service-options" id="timeOptions">
+                    <div class="service-card" data-value="오전 9시 - 12시">
+                        <div class="service-content"><span class="service-name">오전 9시 - 12시</span></div>
+                        <span class="checkmark"></span>
+                    </div>
+                    <div class="service-card" data-value="오후 1시 - 4시">
+                        <div class="service-content"><span class="service-name">오후 1시 - 4시</span></div>
+                        <span class="checkmark"></span>
+                    </div>
+                    <div class="service-card" data-value="오후 4시 - 7시">
+                        <div class="service-content"><span class="service-name">오후 4시 - 7시</span></div>
+                        <span class="checkmark"></span>
+                    </div>
+                    <div class="service-card" data-value="종일 가능 (9시-7시)">
+                        <div class="service-content"><span class="service-name">⭐ 종일 가능 (9시-7시)</span></div>
+                        <span class="checkmark"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>아파트 평수 <span class="required">*</span></label>
+                <div class="service-options" id="sizeOptions">
+                    <div class="service-card" data-value="30평형(20평형 포함)">
+                        <div class="service-content"><span class="service-name">30평형 (20평형 포함)</span></div>
+                        <span class="checkmark"></span>
+                    </div>
+                    <div class="service-card" data-value="40평형">
+                        <div class="service-content"><span class="service-name">40평형</span></div>
+                        <span class="checkmark"></span>
+                    </div>
+                    <div class="service-card" data-value="50평형">
+                        <div class="service-content"><span class="service-name">50평형</span></div>
+                        <span class="checkmark"></span>
+                    </div>
+                    <div class="service-card" data-value="60평형">
+                        <div class="service-content"><span class="service-name">60평형</span></div>
+                        <span class="checkmark"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>서비스 종류 <span class="required">*</span></label>
+                <div class="service-options" id="serviceOptions">
+                    <p style="color: #888; font-size: 14px; margin-bottom: 10px;">먼저 아파트 평수를 선택해주세요</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="font-size: 16px; font-weight: 700; margin-bottom: 12px;">구분 <span class="required">*</span></label>
+                <div class="service-options" id="categoryOptions">
+                    <div class="service-card" data-value="개인">
+                        <div class="service-content">
+                            <span class="service-name">👤 개인</span>
+                        </div>
+                        <span class="checkmark"></span>
+                    </div>
+                    <div class="service-card" data-value="법인">
+                        <div class="service-content">
+                            <span class="service-name">🏢 법인 (세금계산서)</span>
+                        </div>
+                        <span class="checkmark"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="font-size: 16px; font-weight: 700; margin-bottom: 12px;">결제 방법 <span class="required">*</span></label>
+                <div class="service-options" id="paymentOptions">
+                    <div class="service-card" data-value="현금영수증" data-vat="true">
+                        <div class="service-content">
+                            <span class="service-name">💵 현금영수증</span>
+                            <span style="font-size: 12px; color: #e74c3c; font-weight: 600;">+10% 부가세</span>
+                        </div>
+                        <span class="checkmark"></span>
+                    </div>
+                    <div class="service-card" data-value="카드" data-vat="true">
+                        <div class="service-content">
+                            <span class="service-name">💳 카드</span>
+                            <span style="font-size: 12px; color: #e74c3c; font-weight: 600;">+10% 부가세</span>
+                        </div>
+                        <span class="checkmark"></span>
+                    </div>
+                    <div class="service-card" data-value="계좌이체" data-vat="false">
+                        <div class="service-content">
+                            <span class="service-name">🏦 계좌이체</span>
+                            <span style="font-size: 12px; color: #27ae60; font-weight: 600;">부가세 없음</span>
+                        </div>
+                        <span class="checkmark"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="price-summary" id="priceSummary" style="display: none;">
+                <div class="price-row">
+                    <span class="price-label">서비스 금액</span>
+                    <span class="price-value" id="basePrice">0원</span>
+                </div>
+                <div class="price-row" id="vatRow" style="display: none;">
+                    <span class="price-label">부가세 (10%)</span>
+                    <span class="price-value" id="vatPrice">0원</span>
+                </div>
+                <div class="price-row">
+                    <span class="price-label">총 결제예정금액</span>
+                    <span class="price-value" id="totalPrice">0원</span>
+                </div>
+            </div>
+
+            <button class="submit-btn" id="submitBtn" type="button">예약하기</button>
+            
+            <!-- 내 예약 조회 링크 -->
+            <div style="text-align: center; margin-top: 16px; padding-bottom: 30px;">
+                <a href="customer_lookup.html" style="color: #00AEEF; text-decoration: none; font-size: 15px; font-weight: 600;">
+                    📋 이미 예약하셨나요? <u>내 예약 조회/취소</u>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-content">
+            <div class="confirm-title">📋 입력하신 정보가 맞나요?</div>
+            <div class="confirm-info" id="confirmInfo"></div>
+            <div class="confirm-buttons">
+                <button class="btn-no" onclick="closeConfirmModal()">아니오</button>
+                <button class="btn-yes" onclick="confirmBooking()">예, 접수합니다</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="calendar-modal" id="calendarModal">
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <button class="calendar-nav-btn" id="prevMonth">◀</button>
+                <div class="calendar-title" id="calendarTitle">2024년 1월</div>
+                <button class="calendar-nav-btn" id="nextMonth">▶</button>
+            </div>
+            <div class="calendar-weekdays">
+                <div class="calendar-weekday" style="color: #e74c3c;">일</div>
+                <div class="calendar-weekday">월</div>
+                <div class="calendar-weekday">화</div>
+                <div class="calendar-weekday">수</div>
+                <div class="calendar-weekday">목</div>
+                <div class="calendar-weekday">금</div>
+                <div class="calendar-weekday" style="color: #3498db;">토</div>
+            </div>
+            <div class="calendar-days" id="calendarDays"></div>
+            <button class="calendar-close" id="closeCalendar">닫기</button>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">예약 접수 중...</div>
+    </div>
+
+    <script>
+        // ===== 기본 설정 =====
+        const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxRKOfqpoMwV_PGWFOt-O32i1cz9ZKH9SJutoJ9q8au6GwBQ72PyY7aEtVOrSawltBLBA/exec';
+        const GOOGLE_SCRIPT_URL = SHEET_URL;  // 동일한 엔드포인트
+        
+        // ⭐ fetch 타임아웃 래퍼 (30초)
+        async function fetchWithTimeout(url, options = {}, timeout = 30000) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+            
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                return response;
+            } catch (error) {
+                clearTimeout(timeoutId);
+                if (error.name === 'AbortError') {
+                    throw new Error('서버 응답 시간 초과 (30초)');
+                }
+                throw error;
+            }
+        }
+        
+        // 기본 가격 (fallback)
+        const defaultPrices = {
+            '30평형(20평형 포함)': { '난방': 120000, '수도': 120000, '난방+수도': 150000 },
+            '40평형': { '난방': 140000, '수도': 140000, '난방+수도': 180000 },
+            '50평형': { '난방': 160000, '수도': 160000, '난방+수도': 200000 },
+            '60평형': { '난방': 180000, '수도': 180000, '난방+수도': 220000 }
+        };
+
+        let apartmentPrices = []; // 아파트별 가격 데이터
+        let currentDate = new Date();
+        let selectedDate = null;
+        let managerSchedules = [];
+        let selectedTimeSlots = [];
+        let selectedSize = null;
+        let selectedService = null;
+        let selectedCategory = null;
+        let selectedPayment = null;
+
+        // ===== 초기화 =====
+        document.addEventListener('DOMContentLoaded', function() {
+            loadManagerSchedules();
+            loadApartmentPrices();
+            setupEventListeners();
+            formatPhoneInput();
+            
+            // 5초마다 실시간 갱신 (API 부하 감소)
+            setInterval(loadApartmentPrices, 5000);
+        });
+
+        function setupEventListeners() {
+            document.getElementById('dateSelector').addEventListener('click', openCalendar);
+            document.getElementById('closeCalendar').addEventListener('click', closeCalendar);
+            document.getElementById('prevMonth').addEventListener('click', () => changeMonth(-1));
+            document.getElementById('nextMonth').addEventListener('click', () => changeMonth(1));
+            document.getElementById('submitBtn').addEventListener('click', validateAndShowConfirm);
+
+            setupSingleSelect('sizeOptions', (value) => {
+                selectedSize = value;
+                updateServiceOptions();
+                updatePrice();
+            });
+
+            setupSingleSelect('serviceOptions', (value) => {
+                selectedService = value;
+                updatePrice();
+            });
+
+            setupSingleSelect('categoryOptions', (value) => {
+                selectedCategory = value;
+            });
+
+            setupSingleSelect('paymentOptions', (value, element) => {
+                selectedPayment = value;
+                updatePrice();
+            });
+
+            setupMultiSelect('timeOptions', (values) => {
+                selectedTimeSlots = values;
+            });
+            
+            // 아파트명 입력 시 가격 업데이트
+            document.getElementById('aptName').addEventListener('input', () => {
+                if (selectedSize && selectedService) {
+                    updateServiceOptions();
+                    updatePrice();
+                }
+            });
+        }
+
+        function setupSingleSelect(containerId, callback) {
+            const container = document.getElementById(containerId);
+            container.addEventListener('click', function(e) {
+                const card = e.target.closest('.service-card');
+                if (!card || card.classList.contains('disabled')) return;
+                
+                container.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                callback(card.dataset.value, card);
+            });
+        }
+
+        function setupMultiSelect(containerId, callback) {
+            const container = document.getElementById(containerId);
+            container.addEventListener('click', function(e) {
+                const card = e.target.closest('.service-card');
+                if (!card || card.classList.contains('disabled')) return;
+                
+                const allDayCard = container.querySelector('[data-value="종일 가능 (9시-7시)"]');
+                
+                if (card.dataset.value === '종일 가능 (9시-7시)') {
+                    container.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                } else {
+                    if (allDayCard) allDayCard.classList.remove('selected');
+                    card.classList.toggle('selected');
+                }
+                
+                const selected = Array.from(container.querySelectorAll('.service-card.selected')).map(c => c.dataset.value);
+                callback(selected);
+            });
+        }
+
+        function formatPhoneInput() {
+            const phoneInput = document.getElementById('phone');
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/[^\d]/g, '');
+                if (value.length > 3 && value.length <= 7) {
+                    value = value.slice(0, 3) + '-' + value.slice(3);
+                } else if (value.length > 7) {
+                    value = value.slice(0, 3) + '-' + value.slice(3, 7) + '-' + value.slice(7, 11);
+                }
+                e.target.value = value;
+            });
+        }
+
+        // ===== 스케줄 로딩 =====
+        async function loadManagerSchedules() {
+            try {
+                const response = await fetch(`${SHEET_URL}?action=getManagerSchedules`);
+                const data = await response.json();
+                if (data.success) {
+                    managerSchedules = data.schedules || [];
+                }
+            } catch (error) {
+                // Google Apps Script 연결 전에는 조용히 무시
+                managerSchedules = [];
+            }
+        }
+
+        // ===== 아파트 가격 로드 =====
+        async function loadApartmentPrices() {
+            try {
+                const response = await fetch(`${SHEET_URL}?action=getApartmentPrices`);
+                const data = await response.json();
+                if (data.success) {
+                    apartmentPrices = data.apartments || [];
+                }
+            } catch (error) {
+                // Google Apps Script 연결 전에는 조용히 무시
+                apartmentPrices = [];
+            }
+        }
+
+        // ===== 키워드 매칭으로 아파트 찾기 =====
+        function findApartmentByKeyword(inputText) {
+            if (!inputText) return null;
+            
+            const searchText = inputText.toLowerCase().trim();
+            
+            for (let apt of apartmentPrices) {
+                if (!apt.keywords) continue;
+                
+                const keywords = apt.keywords.toLowerCase().split(',').map(k => k.trim());
+                
+                for (let keyword of keywords) {
+                    if (searchText.includes(keyword) || keyword.includes(searchText)) {
+                        return apt;
+                    }
+                }
+            }
+            
+            return null;
+        }
+
+        // ===== 가격 가져오기 (아파트별 또는 기본) =====
+        function getPrice(size, service) {
+            const aptName = document.getElementById('aptName').value.trim();
+            const matchedApt = findApartmentByKeyword(aptName);
+            
+            if (matchedApt) {
+                // 매칭된 아파트의 가격 사용
+                // ⭐ CRIT-002 수정: null 체크 추가
+                const sizeMatch = size ? size.match(/\d+/) : null;
+                if (!sizeMatch) {
+                    // 숫자를 찾을 수 없으면 기본 가격 사용
+                    return defaultPrices[size] ? defaultPrices[size][service] : 0;
+                }
+                const sizeNum = sizeMatch[0]; // '30평형(20평형 포함)' -> '30'
+                let serviceKey = 'both'; // 기본값
+                if (service === '난방') serviceKey = 'heating';
+                else if (service === '수도') serviceKey = 'water';
+                else if (service === '난방+수도' || service.includes('+')) serviceKey = 'both';
+                
+                const priceKey = `price${sizeNum}${serviceKey}`;
+                const aptPrice = matchedApt[priceKey];
+                
+                // 아파트별 가격이 0이 아니면 사용, 아니면 기본 가격
+                if (aptPrice && aptPrice > 0) {
+                    return aptPrice;
+                }
+            }
+            
+            // 매칭 안되면 기본 가격 사용
+            return defaultPrices[size] ? defaultPrices[size][service] : 0;
+        }
+
+        // ===== 캘린더 =====
+        async function openCalendar() {
+            document.getElementById('calendarModal').classList.add('show');
+            await renderCalendar();
+        }
+
+        function closeCalendar() {
+            document.getElementById('calendarModal').classList.remove('show');
+        }
+
+        async function changeMonth(delta) {
+            currentDate.setMonth(currentDate.getMonth() + delta);
+            await renderCalendar();
+        }
+
+        // ⭐ 가용성 캐시 (날짜별 예약 가능 여부)
+        let availabilityCache = {};
+        
+        async function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            document.getElementById('calendarTitle').textContent = `${year}년 ${month + 1}월`;
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startingDayOfWeek = firstDay.getDay();
+            const monthLength = lastDay.getDate();
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // 로딩 표시
+            document.getElementById('calendarDays').innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">가용성 확인 중...</div>';
+            
+            // 해당 월의 가용성 미리 로드
+            await loadMonthAvailability(year, month);
+            
+            let html = '';
+            
+            for (let i = 0; i < startingDayOfWeek; i++) {
+                html += '<div class="calendar-day empty"></div>';
+            }
+            
+            for (let day = 1; day <= monthLength; day++) {
+                const currentDateObj = new Date(year, month, day);
+                currentDateObj.setHours(0, 0, 0, 0);
+                
+                const isToday = currentDateObj.getTime() === today.getTime();
+                const isPast = currentDateObj < today;
+                const isSelected = selectedDate && selectedDate.getTime() === currentDateObj.getTime();
+                
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                
+                // 가용성 정보
+                const availability = availabilityCache[dateStr];
+                const isFull = availability && !availability.available;
+                const remainingSlots = availability ? availability.remainingSlots : '?';
+                
+                let classes = ['calendar-day'];
+                if (isToday) classes.push('today');
+                if (isPast) classes.push('disabled');
+                if (isSelected && !isFull) classes.push('selected');
+                if (isFull && !isPast) classes.push('full');
+                
+                let slotsText = '';
+                if (!isPast) {
+                    if (isFull) {
+                        slotsText = `<div class="slots-indicator">마감</div>`;
+                    } else if (availability) {
+                        slotsText = `<div class="slots-indicator">잔여 ${remainingSlots}</div>`;
+                    } else {
+                        slotsText = `<div class="slots-indicator">예약가능</div>`;
+                    }
+                }
+                
+                const onclick = (isPast || isFull) ? '' : `onclick="selectDate('${dateStr}')"`;
+                html += `<div class="${classes.join(' ')}" data-date="${dateStr}" ${onclick}>${day}${slotsText}</div>`;
+            }
+            
+            document.getElementById('calendarDays').innerHTML = html;
+        }
+        
+        // ⭐ 해당 월 전체 가용성 로드
+        async function loadMonthAvailability(year, month) {
+            const lastDay = new Date(year, month + 1, 0).getDate();
+            const promises = [];
+            
+            for (let day = 1; day <= lastDay; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                
+                // 캐시에 없으면 로드
+                if (!availabilityCache[dateStr]) {
+                    promises.push(checkDateAvailability(dateStr));
+                }
+            }
+            
+            // 병렬 로드 (최대 5개씩)
+            for (let i = 0; i < promises.length; i += 5) {
+                await Promise.all(promises.slice(i, i + 5));
+            }
+        }
+        
+        // ⭐ 단일 날짜 가용성 체크
+        async function checkDateAvailability(dateStr) {
+            try {
+                const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=checkAvailability&date=${dateStr}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    availabilityCache[dateStr] = {
+                        available: result.available,
+                        remainingSlots: result.remainingSlots,
+                        currentCount: result.currentCount,
+                        maxCount: result.maxCount
+                    };
+                }
+            } catch (error) {
+                
+                // 에러 시 예약 가능으로 표시 (서버에서 최종 검증)
+                availabilityCache[dateStr] = { available: true, remainingSlots: '?' };
+            }
+        }
+
+        function getAvailableSlots(dateStr) {
+            const availability = availabilityCache[dateStr];
+            if (availability) {
+                return availability.remainingSlots;
+            }
+            return 10; // 캐시에 없으면 기본값
+        }
+
+        async function selectDate(dateStr) {
+            const dateObj = new Date(dateStr + 'T00:00:00');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (dateObj < today) return;
+            
+            // 가용성 재확인
+            const availability = availabilityCache[dateStr];
+            if (availability && !availability.available) {
+                alert('⚠️ 해당 날짜는 예약이 마감되었습니다.\n다른 날짜를 선택해주세요.');
+                return;
+            }
+            
+            selectedDate = dateObj;
+            const displayDate = `${dateObj.getFullYear()}년 ${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일`;
+            
+            // 잔여 표시
+            const slotsInfo = availability ? ` (잔여 ${availability.remainingSlots}건)` : '';
+            document.getElementById('dateDisplay').textContent = displayDate + slotsInfo;
+            document.getElementById('dateDisplay').classList.remove('date-selector-placeholder');
+            
+            closeCalendar();
+        }
+
+        // ===== 서비스 옵션 업데이트 =====
+        function updateServiceOptions() {
+            const container = document.getElementById('serviceOptions');
+            if (!selectedSize) {
+                container.innerHTML = '<p style="color: #888; font-size: 14px; margin-bottom: 10px;">먼저 아파트 평수를 선택해주세요</p>';
+                return;
+            }
+
+            const serviceTypes = ['난방', '수도', '난방+수도'];
+            let html = '';
+            
+            serviceTypes.forEach(service => {
+                const price = getPrice(selectedSize, service);
+                html += `
+                    <div class="service-card" data-value="${service}">
+                        <div class="service-content">
+                            <span class="service-name">${service}</span>
+                            <span style="font-size: 14px; color: #00AEEF; font-weight: 600;">${price.toLocaleString()}원</span>
+                        </div>
+                        <span class="checkmark"></span>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            selectedService = null;
+        }
+
+        // ===== 가격 계산 =====
+        function updatePrice() {
+            const summary = document.getElementById('priceSummary');
+            
+            if (!selectedSize || !selectedService || !selectedPayment) {
+                summary.style.display = 'none';
+                return;
+            }
+
+            const basePrice = getPrice(selectedSize, selectedService);
+            const paymentCard = document.querySelector(`#paymentOptions .service-card[data-value="${selectedPayment}"]`);
+            const hasVAT = paymentCard && paymentCard.dataset.vat === 'true';
+            
+            const vatAmount = hasVAT ? Math.round(basePrice * 0.1) : 0;
+            const totalPrice = basePrice + vatAmount;
+            
+            document.getElementById('basePrice').textContent = basePrice.toLocaleString() + '원';
+            document.getElementById('vatPrice').textContent = vatAmount.toLocaleString() + '원';
+            document.getElementById('totalPrice').textContent = totalPrice.toLocaleString() + '원';
+            
+            document.getElementById('vatRow').style.display = hasVAT ? 'flex' : 'none';
+            summary.style.display = 'block';
+        }
+
+        // ===== 유효성 검사 및 확인 =====
+        async function validateAndShowConfirm() {
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const region = document.getElementById('region').value.trim();
+            const aptName = document.getElementById('aptName').value.trim();
+            const dong = document.getElementById('dong').value.trim();
+            const ho = document.getElementById('ho').value.trim();
+
+            if (!name) return alert('이름을 입력해주세요.');
+            if (!phone) return alert('전화번호를 입력해주세요.');
+            if (phone.length < 12) return alert('전화번호를 정확히 입력해주세요.');
+            if (!region) return alert('지역을 입력해주세요.');
+            if (!aptName) return alert('아파트 이름을 입력해주세요.');
+            if (!dong) return alert('동을 입력해주세요.');
+            if (!ho) return alert('호수를 입력해주세요.');
+            if (!selectedDate) return alert('서비스 날짜를 선택해주세요.');
+            if (selectedTimeSlots.length === 0) return alert('가능한 시간대를 선택해주세요.');
+            if (!selectedSize) return alert('아파트 평수를 선택해주세요.');
+            if (!selectedService) return alert('서비스 종류를 선택해주세요.');
+            if (!selectedCategory) return alert('구분(법인/개인)을 선택해주세요.');
+            if (!selectedPayment) return alert('결제 방법을 선택해주세요.');
+
+            // ⭐ 예약 제출 전 가용성 최종 확인
+            const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+            
+            document.getElementById('loadingOverlay').classList.add('show');
+            document.querySelector('.loading-text').textContent = '예약 가능 여부 확인 중...';
+            
+            try {
+                const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=checkAvailability&date=${dateStr}`);
+                const result = await response.json();
+                
+                document.getElementById('loadingOverlay').classList.remove('show');
+                
+                if (!result.available) {
+                    alert(`⚠️ 죄송합니다!\n\n${dateStr} 날짜는 예약이 마감되었습니다.\n(${result.currentCount}/${result.maxCount}건)\n\n다른 날짜를 선택해주세요.`);
+                    
+                    // 가용성 캐시 업데이트 후 캘린더 새로고침
+                    availabilityCache[dateStr] = {
+                        available: false,
+                        remainingSlots: 0,
+                        currentCount: result.currentCount,
+                        maxCount: result.maxCount
+                    };
+                    
+                    // 날짜 선택 초기화
+                    selectedDate = null;
+                    document.getElementById('dateDisplay').textContent = '📅 날짜를 선택하세요';
+                    document.getElementById('dateDisplay').classList.add('date-selector-placeholder');
+                    return;
+                }
+            } catch (error) {
+                document.getElementById('loadingOverlay').classList.remove('show');
+                
+                // 서버 오류 시 일단 진행 (서버에서 최종 검증)
+            }
+
+            showConfirmModal();
+        }
+
+        function showConfirmModal() {
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const region = document.getElementById('region').value.trim();
+            const aptName = document.getElementById('aptName').value.trim();
+            const dong = document.getElementById('dong').value.trim();
+            const ho = document.getElementById('ho').value.trim();
+            const address = `${region} ${aptName} ${dong} ${ho}`;
+            
+            const displayDate = `${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일`;
+            
+            const basePrice = getPrice(selectedSize, selectedService);
+            const paymentCard = document.querySelector(`#paymentOptions .service-card[data-value="${selectedPayment}"]`);
+            const hasVAT = paymentCard && paymentCard.dataset.vat === 'true';
+            const vatAmount = hasVAT ? Math.round(basePrice * 0.1) : 0;
+            const totalPrice = basePrice + vatAmount;
+
+            let html = `
+                <div class="confirm-row"><div class="confirm-label">이름</div><div class="confirm-value">${name}</div></div>
+                <div class="confirm-row"><div class="confirm-label">전화번호</div><div class="confirm-value">${phone}</div></div>
+                <div class="confirm-row"><div class="confirm-label">주소</div><div class="confirm-value">${address}</div></div>
+                <div class="confirm-row"><div class="confirm-label">희망 날짜</div><div class="confirm-value">${displayDate}</div></div>
+                <div class="confirm-row"><div class="confirm-label">가능 시간</div><div class="confirm-value">${selectedTimeSlots.join(', ')}</div></div>
+                <div class="confirm-row"><div class="confirm-label">평수</div><div class="confirm-value">${selectedSize}</div></div>
+                <div class="confirm-row"><div class="confirm-label">서비스</div><div class="confirm-value">${selectedService}</div></div>
+                <div class="confirm-row"><div class="confirm-label">구분</div><div class="confirm-value">${selectedCategory}</div></div>
+                <div class="confirm-row"><div class="confirm-label">결제방법</div><div class="confirm-value">${selectedPayment}</div></div>
+                <div class="confirm-row"><div class="confirm-label">서비스 금액</div><div class="confirm-value">${basePrice.toLocaleString()}원</div></div>
+            `;
+            
+            if (hasVAT) {
+                html += `<div class="confirm-row"><div class="confirm-label">부가세(10%)</div><div class="confirm-value">${vatAmount.toLocaleString()}원</div></div>`;
+            }
+            
+            html += `<div class="confirm-row"><div class="confirm-label" style="color: #00AEEF;">총 결제금액</div><div class="confirm-value" style="color: #00AEEF; font-size: 22px;">${totalPrice.toLocaleString()}원</div></div>`;
+
+            document.getElementById('confirmInfo').innerHTML = html;
+            document.getElementById('confirmModal').classList.add('show');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('show');
+        }
+
+        // ===== 예약 제출 (수정됨 - 필드명 매핑) =====
+        async function confirmBooking() {
+            closeConfirmModal();
+            document.getElementById('loadingOverlay').classList.add('show');
+
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const region = document.getElementById('region').value.trim();
+            const aptName = document.getElementById('aptName').value.trim();
+            const dong = document.getElementById('dong').value.trim();
+            const ho = document.getElementById('ho').value.trim();
+            
+            // 주소를 "아파트 동 호수" 형식으로 (지역 제외 - 시트 구조에 맞춤)
+            const address = `${aptName} ${dong} ${ho}`;
+            
+            const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+            
+            const basePrice = getPrice(selectedSize, selectedService);
+            const paymentCard = document.querySelector(`#paymentOptions .service-card[data-value="${selectedPayment}"]`);
+            const hasVAT = paymentCard && paymentCard.dataset.vat === 'true';
+            const vatAmount = hasVAT ? Math.round(basePrice * 0.1) : 0;
+            const totalPrice = basePrice + vatAmount;
+
+            // ===== 수정된 부분: Apps Script 필드명에 맞춤 + timeSlots 배열 전송 =====
+            const bookingData = {
+                action: 'addBooking',
+                name: name,
+                phone: phone,
+                address: address,
+                
+                // 날짜 필드
+                serviceDate: dateStr,
+                date: dateStr,
+                
+                // 스케일링 항목 (I열) - 평수 + 서비스
+                items: `${selectedSize} / ${selectedService}`,
+                
+                // ⭐ 희망 시간대 (별도 컬럼으로 저장)
+                timeSlots: selectedTimeSlots,  // 배열로 전송
+                
+                // 개별 필드
+                size: selectedSize,
+                service: selectedService,
+                
+                // 구분 (Q열)
+                category: selectedCategory,
+                
+                // 결제방법 (N열)
+                paymentMethod: selectedPayment,
+                payment: selectedPayment,
+                
+                // 매출 (M열)
+                revenue: totalPrice,
+                price: totalPrice,
+                
+                // 미수금 (P열)
+                unpaid: totalPrice,
+                
+                // 상태
+                status: 'received'
+            };
+
+            try {
+                // ⭐ mode: 'no-cors' 제거 - 서버 응답을 받아야 함
+                const response = await fetch(SHEET_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bookingData)
+                });
+
+                let result;
+                try {
+                    result = await response.json();
+                } catch (e) {
+                    // JSON 파싱 실패 시 성공으로 간주 (일부 환경에서 발생)
+                    result = { success: true };
+                }
+
+                document.getElementById('loadingOverlay').classList.remove('show');
+
+                if (result.success) {
+                    // 예약번호 표시
+                    const bookingId = result.id || result.bookingId || 'HC-' + Date.now().toString().slice(-8);
+                    document.getElementById('bookingIdText').textContent = bookingId;
+                    
+                    // 예약 요약 정보
+                    const summaryHtml = `
+                        <strong>📅 날짜:</strong> ${dateStr}<br>
+                        <strong>🕐 희망시간:</strong> ${selectedTimeSlots.join(', ')}<br>
+                        <strong>🏠 주소:</strong> ${address}<br>
+                        <strong>🔧 서비스:</strong> ${selectedSize} / ${selectedService}<br>
+                        <strong>💰 예상금액:</strong> ${totalPrice.toLocaleString()}원
+                    `;
+                    document.getElementById('bookingSummary').innerHTML = summaryHtml;
+                    
+                    // 모달 표시
+                    document.getElementById('successOverlay').classList.add('show');
+                } else {
+                    // ⭐ 서버에서 에러 반환 시 처리
+                    if (result.errorCode === 'FULLY_BOOKED') {
+                        alert(`⚠️ 죄송합니다!\n\n${result.date} 날짜는 예약이 마감되었습니다.\n(${result.currentCount}/${result.maxCount}건)\n\n다른 날짜를 선택해주세요.`);
+                        
+                        // 날짜 선택 초기화
+                        selectedDate = null;
+                        document.getElementById('dateDisplay').textContent = '📅 날짜를 선택하세요';
+                        document.getElementById('dateDisplay').classList.add('date-selector-placeholder');
+                    } else if (result.errorCode === 'DUPLICATE_BOOKING') {
+                        // ⭐ 중복 예약 에러 처리
+                        alert(`⚠️ 이미 예약하셨습니다!\n\n${result.message}\n\n기존 예약 변경은 고객센터로 문의해주세요.\n📞 010-XXXX-XXXX`);
+                    } else if (result.errorCode === 'LOCK_TIMEOUT') {
+                        // ⭐ 서버 바쁨 에러 처리
+                        alert(`⏳ 서버가 바쁩니다.\n\n잠시 후 다시 시도해주세요.`);
+                    } else {
+                        alert('❌ 예약 실패: ' + (result.message || '알 수 없는 오류'));
+                    }
+                }
+
+            } catch (error) {
+                
+                document.getElementById('loadingOverlay').classList.remove('show');
+                alert('예약 중 오류가 발생했습니다. 다시 시도해주세요.');
+            }
+        }
+
+        // 예약 완료 모달 닫기
+        function closeSuccessModal() {
+            document.getElementById('successOverlay').classList.remove('show');
+            resetForm();
+        }
+
+        function resetForm() {
+            document.getElementById('name').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('region').value = '';
+            document.getElementById('aptName').value = '';
+            document.getElementById('dong').value = '';
+            document.getElementById('ho').value = '';
+            document.getElementById('dateDisplay').textContent = '📅 날짜를 선택하세요';
+            document.getElementById('dateDisplay').classList.add('date-selector-placeholder');
+            
+            document.querySelectorAll('.service-card').forEach(card => card.classList.remove('selected'));
+            
+            selectedDate = null;
+            selectedTimeSlots = [];
+            selectedSize = null;
+            selectedService = null;
+            selectedCategory = null;
+            selectedPayment = null;
+            
+            document.getElementById('priceSummary').style.display = 'none';
+            updateServiceOptions();
+        }
+    </script>
+</body>
+</html>
